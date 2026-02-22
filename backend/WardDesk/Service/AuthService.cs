@@ -31,8 +31,22 @@ namespace WardDesk_Backend.Service
 
         public async Task<RegisterResponseDTO> RegisterAsync(RegisterDTO request)
         {
+            
+            var roleType = request.RoleType.ToLower().Trim();
+            if (roleType != "citizen" && roleType != "technician")
+                throw new InvalidOperationException("Invalid role type. Only 'citizen' or 'technician' are allowed.");
+
+
+            if (roleType == "technician" && string.IsNullOrWhiteSpace(request.CitizenshipPhotoUrl))
+                throw new InvalidOperationException("Citizenship photo is required for technician registration.");
+
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
                 throw new InvalidOperationException("Email already registered");
+
+          
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName.ToLower() == roleType);
+            if (role == null)
+                throw new InvalidOperationException($"Role '{roleType}' not found in the system.");
 
             UserRecord firebaseUser;
             try
@@ -49,6 +63,8 @@ namespace WardDesk_Backend.Service
                 throw new InvalidOperationException($"Firebase error: {ex.Message}");
             }
 
+            var isCitizen = roleType == "citizen";
+
             var user = new User
             {
                 UserId = Guid.NewGuid(),
@@ -57,10 +73,12 @@ namespace WardDesk_Backend.Service
                 FullName = request.FullName,
                 PhoneNumber = request.PhoneNumber,
                 WardNumber = request.WardNumber,
-                RoleId = 1,
+                RoleId = role.RoleId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsActive = true
+                IsActive = isCitizen,           
+                IsVerified = isCitizen,          
+                CitizenshipPhotoUrl = isCitizen ? null : request.CitizenshipPhotoUrl
             };
 
             _context.Users.Add(user);
@@ -81,7 +99,11 @@ namespace WardDesk_Backend.Service
                 Email = user.Email,
                 FullName = user.FullName,
                 WardNumber = user.WardNumber,
-                Message = "Registration successful!"
+                RoleName = role.RoleName,
+                IsVerified = user.IsVerified,
+                Message = isCitizen
+                    ? "Registration successful!"
+                    : "Registration successful! Your account is pending admin verification."
             };
         }
 
@@ -93,8 +115,16 @@ namespace WardDesk_Backend.Service
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.FirebaseUid == firebaseUid);
 
-            if (user == null || !user.IsActive)
-                throw new InvalidOperationException("User not found or account disabled");
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+           
+            if (!user.IsVerified)
+                throw new InvalidOperationException("Your account is pending admin verification. Please wait for approval.");
+
+
+            if (!user.IsActive)
+                throw new InvalidOperationException("Your account has been deactivated. Please contact admin.");
 
             if (user.Role == null)
                 throw new InvalidOperationException("User role not loaded");
@@ -138,7 +168,8 @@ namespace WardDesk_Backend.Service
 
             return user;
         }
-        //Firebase le verify garne
+
+       
         private async Task<string> VerifyWithFirebaseAsync(string email, string password)
         {
             var firebaseApiKey = _configuration["Firebase:WebApiKey"];
@@ -196,7 +227,6 @@ namespace WardDesk_Backend.Service
                 AccessTokenExpiry = DateTime.UtcNow.AddMinutes(
                     _configuration.GetValue<int>("Jwt:AccessTokenExpirationMinutes")),
                 RefreshTokenExpiry = user.RefreshTokenExpiryTime!.Value,
-                
             };
         }
 
@@ -205,8 +235,8 @@ namespace WardDesk_Backend.Service
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes. Email, user.Email),
-                new Claim(ClaimTypes. Role, roleName)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, roleName)
             };
 
             var key = new SymmetricSecurityKey(
