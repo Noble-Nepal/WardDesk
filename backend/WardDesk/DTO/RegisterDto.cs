@@ -19,6 +19,10 @@ namespace WardDesk_Backend.DTO
         public string PhoneNumber { get; set; } = ""; 
 
         [Required]
-        public int WardNumber { get; set; } 
+        public int WardNumber { get; set; }
+        [Required]
+        public string RoleType { get; set; } = "citizen";
+
+        public string? CitizenshipPhotoUrl { get; set; }
     }
 }
