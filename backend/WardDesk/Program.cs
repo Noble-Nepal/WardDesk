@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
 using WardDesk.Database;
-using WardDesk_Backend.Service;
+using WardDesk.Service;
 
 namespace WardDesk
 {
@@ -47,6 +47,16 @@ namespace WardDesk
 
             // AuthService
             builder.Services.AddScoped<AuthService>();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReact", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5174")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
 
             // JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -80,7 +90,7 @@ namespace WardDesk
                 app.MapOpenApi();
                 app.MapScalarApiReference();
             }
-
+            app.UseCors("AllowReact");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
