@@ -1,0 +1,6 @@
+@WardDesk_HostAddress = http://localhost:5015
+
+GET {{WardDesk_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

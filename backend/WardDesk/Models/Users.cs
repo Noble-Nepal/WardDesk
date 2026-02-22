@@ -36,6 +36,12 @@ namespace WardDesk_Backend.Models
         [Column("is_active")]
         public bool IsActive { get; set; }
 
+        [Column("citizenship_photo_url")]
+        public string? Citizenship_photo_url { get; set; }
+
+        [Column("is_verified")]
+        public bool IsVerified { get; set; }
+
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
