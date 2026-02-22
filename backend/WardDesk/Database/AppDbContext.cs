@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WardDesk_Backend.Models;
+using WardDesk.Models;
 
-namespace WardDesk_Backend.Database
+namespace WardDesk.Database
 {
     public class AppDbContext : DbContext
     {

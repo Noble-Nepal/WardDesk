@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WardDesk_Backend.Models  
+namespace WardDesk.Models  
 {
     [Table("roles")]
     public class Role

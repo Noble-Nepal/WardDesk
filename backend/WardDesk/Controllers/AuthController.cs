@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using WardDesk_Backend.DTO;
-using WardDesk_Backend.Service;
+using WardDesk.DTO;
 
-namespace WardDesk_Backend.Controllers
+using WardDesk.Service;
+
+namespace WardDesk.Controllers
 {
     [ApiController] 
     [Route("api/[controller]")] 

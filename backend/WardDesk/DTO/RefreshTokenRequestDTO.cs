@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WardDesk_Backend.DTO
+namespace WardDesk.DTO
 {
     public class RefreshTokenRequestDTO
     {

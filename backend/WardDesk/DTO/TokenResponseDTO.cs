@@ -1,4 +1,4 @@
-﻿namespace WardDesk_Backend.DTO
+﻿namespace WardDesk.DTO
 {
     public class TokenResponseDTO
     {

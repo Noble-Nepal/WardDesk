@@ -7,11 +7,12 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using WardDesk_Backend.Database;
-using WardDesk_Backend.DTO;
-using WardDesk_Backend.Models;
+using WardDesk.DTO;
+using WardDesk.Database;
 
-namespace WardDesk_Backend.Service
+using WardDesk.Models;
+
+namespace WardDesk.Service
 {
     public class AuthService
     {

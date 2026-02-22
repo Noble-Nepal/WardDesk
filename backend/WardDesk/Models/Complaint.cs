@@ -1,4 +1,4 @@
-﻿namespace WardDesk_Backend.Models
+﻿namespace WardDesk.Models
 {
     public class Complaint
     {

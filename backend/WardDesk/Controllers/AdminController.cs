@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WardDesk_Backend.Database;
+using WardDesk.Database;
 using Microsoft.EntityFrameworkCore;
 namespace WardDesk.Controllers
 {

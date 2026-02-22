@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
-using WardDesk_Backend.Database;
+using WardDesk.Database;
 using WardDesk_Backend.Service;
 
-namespace WardDesk_Backend
+namespace WardDesk
 {
     public class Program
     {
