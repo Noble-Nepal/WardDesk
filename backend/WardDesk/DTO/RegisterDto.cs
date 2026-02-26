@@ -20,6 +20,9 @@ namespace WardDesk.DTO
 
         [Required]
         public int WardNumber { get; set; }
+
+        [Required]                                        
+        public string Address { get; set; } = "";
         [Required]
         public string RoleType { get; set; } = "citizen";
 

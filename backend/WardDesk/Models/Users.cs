@@ -23,6 +23,9 @@ namespace WardDesk.Models
         [Column("phone_number")]
         public string PhoneNumber { get; set; } = string.Empty;
 
+        [Column("address")]
+        public string Address { get; set; } = string.Empty;
+
         [Column("ward_number")]
         public int WardNumber { get; set; }
 
