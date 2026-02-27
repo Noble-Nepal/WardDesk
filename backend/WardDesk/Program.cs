@@ -48,6 +48,9 @@ namespace WardDesk
             // AuthService
             builder.Services.AddScoped<AuthService>();
 
+            //Complaint Service
+            builder.Services.AddScoped<ComplaintService>();
+
 
 
             builder.Services.AddCors(options =>
