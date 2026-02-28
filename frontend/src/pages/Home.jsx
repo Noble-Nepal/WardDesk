@@ -5,7 +5,7 @@ import WhyChoose from "../components/home/WhyChoose";
 import HowItWorks from "../components/home/HowItWorks";
 import BuiltForEveryone from "../components/home/BuiltForEveryone";
 import CTABanner from "../components/home/CTABanner";
-import Footer from "../components/home/Footer";
+import Footer from "../components/common/footer/Footer";
 
 const Home = () => {
   return (
