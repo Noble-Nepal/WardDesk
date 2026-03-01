@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { registerUser } from "../../api/authApi";
-import uploadToCloudinary from "../../utils/uploadToCloudinary";
+import handleImageUpload from "../../utils/handleImageUpload";
 import SuccessToast from "../../components/ui/SuccessToast";
 import EyeToggle from "../../components/ui/EyeToggle";
 import ErrorAlert from "../../components/ui/ErrorAlert";
@@ -113,7 +113,7 @@ const Registration = () => {
     try {
       let citizenshipPhotoUrl = null;
       if (isTechnician && citizenshipPhoto) {
-        citizenshipPhotoUrl = await uploadToCloudinary(citizenshipPhoto);
+        citizenshipPhotoUrl = await handleImageUpload(citizenshipPhoto);
       }
 
       await registerUser({
