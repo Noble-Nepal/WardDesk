@@ -16,3 +16,6 @@ export const trackComplaint = (trackingId) =>
 // Get complaint categories
 export const getComplaintCategories = () =>
   axiosInstance.get(API_ENDPOINTS.COMPLAINT_CATEGORIES);
+//Get Stats for citizen's Complaints and their contribution
+export const getImpactStats = (citizenId) =>
+  axiosInstance.get(API_ENDPOINTS.IMPACT_STATS(citizenId));

@@ -1,3 +1,5 @@
+import { IMPACT_STATS } from "./reportIssueConstants";
+
 export const API_ENDPOINTS = {
   LOGIN: "/auth/login",
   REGISTER: "/auth/register",
@@ -13,4 +15,8 @@ export const API_ENDPOINTS = {
   GET_ALL_COMPLAINTS: "/complaint", // admin/technician role
   TRACK_COMPLAINT: "/complaint/track", // usage: /complaint/track/{trackingId}
   COMPLAINT_CATEGORIES: "/complaint/categories",
+  IMPACT_STATS: (citizenId) =>
+    citizenId
+      ? `/complaints/impact-stats?citizenId=${citizenId}`
+      : "/complaints/impact-stats",
 };

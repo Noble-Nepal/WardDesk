@@ -51,12 +51,6 @@ export const REPORT_TIPS = [
   "Choose Right Category - Select the most relevant category for faster response",
 ];
 
-export const IMPACT_STATS = {
-  filed: 3,
-  resolved: 2,
-  message: "Keep making a difference!",
-};
-
 export const LABELS = {
   pageTitle: "Report a New Issue",
   pageSubtitle: "Help us improve your community by reporting civic issues",
