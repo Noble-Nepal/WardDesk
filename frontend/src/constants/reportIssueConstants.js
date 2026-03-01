@@ -1,0 +1,73 @@
+// Ward options (Ward 1 to Ward 10)
+export const WARD_OPTIONS = Array.from(
+  { length: 26 },
+  (_, i) => `Wardno. ${i + 1}`,
+);
+
+// Priority options, each with display and styling atoms
+export const PRIORITY_OPTIONS = [
+  {
+    value: "low",
+    label: "Low Priority",
+    description: "Non-urgent, routine maintenance",
+    color: "blue-500",
+    dot: "bg-blue-500",
+    selectedClass: "border-blue-500 bg-blue-50",
+  },
+  {
+    value: "medium",
+    label: "Medium Priority",
+    description: "Needs attention within weeks",
+    color: "yellow-500",
+    dot: "bg-yellow-500",
+    selectedClass: "border-yellow-500 bg-yellow-50",
+  },
+  {
+    value: "high",
+    label: "High Priority",
+    description: "Requires attention within days",
+    color: "orange-500",
+    dot: "bg-orange-500",
+    selectedClass: "border-orange-500 bg-orange-50",
+  },
+  {
+    value: "urgent",
+    label: "Urgent",
+    description: "Immediate action required",
+    color: "red-500",
+    dot: "bg-red-500",
+    selectedClass: "border-red-500 bg-red-50",
+  },
+];
+
+// Max photos; max size for all uploads
+export const MAX_PHOTOS = 3;
+export const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 15 MB
+
+export const REPORT_TIPS = [
+  "Clear Photos - Take clear, well-lit photos showing the issue",
+  "Accurate Location - Double check the pin location on map",
+  "Detailed Description - Include when you noticed this issue and any other details",
+  "Choose Right Category - Select the most relevant category for faster response",
+];
+
+export const IMPACT_STATS = {
+  filed: 3,
+  resolved: 2,
+  message: "Keep making a difference!",
+};
+
+export const LABELS = {
+  pageTitle: "Report a New Issue",
+  pageSubtitle: "Help us improve your community by reporting civic issues",
+  backToDashboard: "Back to Dashboard",
+  basicInfo: "Basic Information",
+  locationInfo: "Location Information",
+  uploadPhotos: "Upload Photos",
+  priorityLevel: "Priority Level",
+  contactPreferences: "Contact Preferences",
+  cancel: "Cancel",
+  submit: "Submit Issue",
+  tipsHeader: "Tips for Better Reports",
+  impactHeader: "Your Impact",
+};

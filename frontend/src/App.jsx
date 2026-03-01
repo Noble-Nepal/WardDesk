@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 
 //Citizen Pages
 import ComplaintDashboard from "./pages/citizen/ComplaintDashboard";
+import ReportIssue from "./pages/citizen/ReportIssue";
 //Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 //Technician Pages
@@ -27,6 +28,7 @@ const App = () => {
       {/* -------- CITIZEN ROUTES -------- */}
       <Route path="/citizen" element={<CitizenLayout />}>
         <Route path="dashboard" element={<ComplaintDashboard />} />
+        <Route path="report-issue" element={<ReportIssue />} />
       </Route>
 
       {/* -------- ADMIN ROUTES -------- */}

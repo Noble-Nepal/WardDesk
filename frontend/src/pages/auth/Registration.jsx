@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { registerUser } from "../../api/authApi";
-import handleImageUpload from "../../utils/handleImageUpload";
+import handleImageUpload from "../../utils/handleImageUpload.js";
 import SuccessToast from "../../components/ui/SuccessToast";
 import EyeToggle from "../../components/ui/EyeToggle";
 import ErrorAlert from "../../components/ui/ErrorAlert";
