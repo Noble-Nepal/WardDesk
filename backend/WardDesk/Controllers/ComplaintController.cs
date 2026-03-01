@@ -98,6 +98,17 @@ namespace WardDesk.Controllers
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+        /// <summary>
+        //Impact of the user with context to issuing complaints
+        /// </summary>
+        [HttpGet("impact-stats")]
+        [Authorize(Roles = "citizen")]
+        public async Task<IActionResult> GetImpactStats([FromQuery] Guid citizenId)
+        {
+            var stats = await _complaintService.GetImpactStatsAsync(citizenId);
+            return Ok(stats);
+        }
+
 
         /// <summary>
         /// GET api/complaint/categories — Get all active complaint categories

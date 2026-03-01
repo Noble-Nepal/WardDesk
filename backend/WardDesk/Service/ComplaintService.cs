@@ -129,6 +129,29 @@ namespace WardDesk.Service
                 c.Photos?.Select(p => p.PhotoUrl).ToList()
             )).ToList();
         }
+
+
+
+        public async Task<object> GetImpactStatsAsync(Guid citizenId)
+        {
+            
+            var filed = await _context.Complaints.CountAsync(c => c.CitizenId == citizenId);
+
+            
+            var resolvedStatus = await _context.ComplaintStatuses
+                .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "resolved");
+
+          
+            int resolved = resolvedStatus != null
+                ? await _context.Complaints
+                    .CountAsync(c => c.CitizenId == citizenId && c.StatusId == resolvedStatus.StatusId)
+                : 0;
+
+            string message = $"You have resolved {resolved} of {filed} complaints you filed!";
+            return new { filed, resolved, message };
+        }
+
+
         private static ComplaintResponseDTO MapToDTO(
            Complaint c, string categoryName, string statusName, List<string>? photoUrls)
         {
