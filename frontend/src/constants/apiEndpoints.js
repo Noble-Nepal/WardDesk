@@ -6,4 +6,11 @@ export const API_ENDPOINTS = {
   PENDING_TECHNICIANS: "/admin/pending-technicians",
   VERIFY_TECHNICIAN: "/admin/verify-technician",
   REJECT_TECHNICIAN: "/admin/reject-technician",
+
+  //Complaints
+  CREATE_COMPLAINT: "/complaint",
+  GET_MY_COMPLAINTS: "/complaint/my",
+  GET_ALL_COMPLAINTS: "/complaint", // admin/technician role
+  TRACK_COMPLAINT: "/complaint/track", // usage: /complaint/track/{trackingId}
+  COMPLAINT_CATEGORIES: "/complaint/categories",
 };
