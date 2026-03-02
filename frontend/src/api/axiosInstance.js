@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken, setToken, removeToken } from "../utils/tokenUtils";
 
 const axiosInstance = axios.create({
-  baseURL: "https://localhost:7001/api",
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
 
         const res = await axios.post(
           "http://localhost:7001/api/auth/refresh-token",
-          { refreshToken }
+          { refreshToken },
         );
 
         const newAccessToken = res.data.accessToken;
@@ -52,7 +52,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

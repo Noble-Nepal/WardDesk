@@ -8,6 +8,7 @@ import TechnicianLayout from "./layouts/TechnicianLayout";
 import Login from "./pages/auth/Login";
 import Registration from "./pages/auth/Registration";
 import Home from "./pages/Home";
+import TrackComplaint from "./pages/public/TrackComplaint";
 
 //Citizen Pages
 import ComplaintDashboard from "./pages/citizen/ComplaintDashboard";
@@ -23,6 +24,7 @@ const App = () => {
       {/* Public Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/track/:trackingId" element={<TrackComplaint />} />
       <Route path="/register" element={<Registration />} />
 
       {/* -------- CITIZEN ROUTES -------- */}

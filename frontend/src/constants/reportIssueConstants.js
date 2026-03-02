@@ -1,8 +1,5 @@
-// Ward options (Ward 1 to Ward 10)
-export const WARD_OPTIONS = Array.from(
-  { length: 26 },
-  (_, i) => `Wardno. ${i + 1}`,
-);
+// Ward options
+export const WARD_OPTIONS = Array.from({ length: 26 }, (_, i) => i + 1);
 
 // Priority options, each with display and styling atoms
 export const PRIORITY_OPTIONS = [
@@ -43,7 +40,8 @@ export const PRIORITY_OPTIONS = [
 // Max photos; max size for all uploads
 export const MAX_PHOTOS = 3;
 export const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 15 MB
-
+export const DESCRIPTION_MAX_LENGTH = 500;
+export const DEFAULT_PRIORITY = "low";
 export const REPORT_TIPS = [
   "Clear Photos - Take clear, well-lit photos showing the issue",
   "Accurate Location - Double check the pin location on map",
@@ -82,4 +80,10 @@ export const TOAST_CONFIG = {
     background: "transparent",
     boxShadow: "none",
   },
+};
+//  Placeholder Text
+export const PLACEHOLDERS = {
+  title: "Brief description of the issue",
+  description: "Provide detailed information about the issue",
+  address: "Address and nearby landmarks",
 };

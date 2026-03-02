@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from "react";
-import useAuth from "../../hooks/useAuth";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
+
+import useAuth from "../../hooks/useAuth";
 import NepalMapPicker from "../../components/map/mapPicker";
 import PhotoUploader from "../../components/reportIssue/PhotoUploader";
 import ImpactStatsCard from "../../components/reportIssue/ImpactStatsCard";
+import SuccessToast from "../../components/ui/SuccessToast";
+import ComplaintDetails from "../../components/complaint/complaintDetails/ComplaintDetails";
+
 import handleImageUpload from "../../utils/handleImageUpload";
+import {
+  createComplaint,
+  getComplaintCategories,
+  getImpactStats,
+} from "../../api/complaintApi";
 import {
   WARD_OPTIONS,
   PRIORITY_OPTIONS,
@@ -18,21 +29,13 @@ import {
   LABELS,
   PLACEHOLDERS,
 } from "../../constants/reportIssueConstants";
-import {
-  createComplaint,
-  getComplaintCategories,
-  getImpactStats,
-} from "../../api/complaintApi";
-import { ArrowLeft } from "lucide-react";
-import toast from "react-hot-toast";
-import SuccessToast from "../../components/ui/SuccessToast";
 
 export default function ReportIssue() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const citizenId = user?.userId;
 
-  // Form state
+  // ─── Form State ───
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
@@ -42,96 +45,98 @@ export default function ReportIssue() {
   const [latlng, setLatLng] = useState(null);
   const [address, setAddress] = useState("");
   const [photos, setPhotos] = useState([]);
-  const [priority, setPriority] = useState("low");
+  const [priority, setPriority] = useState(DEFAULT_PRIORITY);
   const [emailUpdates, setEmailUpdates] = useState(true);
 
-  // Impact stats state
+  // ─── UI State ───
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submittedComplaint, setSubmittedComplaint] = useState(null);
+
+  // ─── Impact Stats ───
   const [impactStats, setImpactStats] = useState({
     filed: 0,
     resolved: 0,
     message: "",
   });
 
-  // Error/loading
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const descCount = description.length;
-
-  // Fetch categories from API on mount
+  // ─── Fetch Categories ───
   useEffect(() => {
     setCategoriesLoading(true);
     getComplaintCategories()
-      .then((res) => {
-        setCategories(res.data);
-      })
-      .catch(() => setError("Failed to load categories."))
+      .then((res) => setCategories(res.data))
+      .catch(() => setError(VALIDATION_MESSAGES.categoryError))
       .finally(() => setCategoriesLoading(false));
   }, []);
 
+  // ─── Fetch Impact Stats ───
   useEffect(() => {
     if (citizenId) {
-      getImpactStats(citizenId).then((res) => setImpactStats(res.data));
+      getImpactStats(citizenId)
+        .then((res) => setImpactStats(res.data))
+        .catch(() => {});
     }
   }, [citizenId]);
 
-  // Quick category selection (set as ID)
-  const handleCategoryButton = (catId) => setCategoryId(catId);
+  // ─── Reset Form ───
+  const resetForm = () => {
+    setTitle("");
+    setCategoryId("");
+    setDescription("");
+    setWard("");
+    setLatLng(null);
+    setAddress("");
+    setPhotos([]);
+    setPriority(DEFAULT_PRIORITY);
+    setEmailUpdates(true);
+    setError("");
+    setSubmittedComplaint(null);
+  };
 
-  // Form submit
+  // ─── Submit ───
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !categoryId || !description || !ward || !latlng) {
-      setError(
-        "Please fill all required fields and pick a location on the map.",
-      );
+      setError(VALIDATION_MESSAGES.requiredFields);
       return;
     }
     setLoading(true);
     setError("");
+
     try {
       const photoUrls = await Promise.all(
         photos.map((file) => handleImageUpload(file)),
       );
+
       const payload = {
         title,
         categoryId: Number(categoryId),
         description,
         latitude: latlng[0],
         longitude: latlng[1],
-        wardNumber: Number(ward), // <-- Use Number(ward) here
+        wardNumber: Number(ward),
         locationAddress: address,
         photoUrls,
         priorityLevel: priority,
         emailUpdates,
       };
-      await createComplaint(payload);
 
-      // Show the SuccessToast
+      const response = await createComplaint(payload);
+      setSubmittedComplaint(response.data);
+
       toast.custom(
         (t) => (
           <div className={t.visible ? "animate-enter" : "animate-leave"}>
             <SuccessToast
-              title="Report Submitted!"
-              message="Your issue has been successfully filed."
+              title={TOAST_CONFIG.title}
+              message={TOAST_CONFIG.message}
             />
           </div>
         ),
-        {
-          duration: 4000,
-          style: {
-            padding: "0",
-            background: "transparent",
-            boxShadow: "none",
-          },
-        },
+        { duration: TOAST_CONFIG.duration, style: TOAST_CONFIG.style },
       );
-
-      setTimeout(() => {
-        navigate("citizen/dashboard");
-      }, 1000);
     } catch {
-      setError("Failed to submit issue. Please try again.");
+      setError(VALIDATION_MESSAGES.submitError);
     } finally {
       setLoading(false);
     }
@@ -139,7 +144,7 @@ export default function ReportIssue() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* HEADER */}
+      {/* ─── HEADER ─── */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
@@ -148,7 +153,7 @@ export default function ReportIssue() {
           </div>
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/citizen/dashboard")}
             className="flex items-center px-4 py-2 border rounded-lg text-sm bg-white hover:bg-slate-50 gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -157,9 +162,9 @@ export default function ReportIssue() {
         </div>
       </div>
 
-      {/* PAGE GRID */}
+      {/* ─── PAGE GRID ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        {/* MAIN FORM */}
+        {/* ─── MAIN FORM ─── */}
         <form className="lg:col-span-2 space-y-6" onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -167,21 +172,21 @@ export default function ReportIssue() {
               <h2 className="text-xl text-gray-900">{LABELS.basicInfo}</h2>
             </div>
             <div className="space-y-4">
-              {/* Issue Title */}
+              {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Issue Title *
                 </label>
                 <input
                   type="text"
-                  id="title"
-                  placeholder="Brief description of the issue"
+                  placeholder={PLACEHOLDERS.title}
                   className="w-full px-4 py-3 border rounded-lg text-sm"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
+
               {/* Category */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
@@ -217,7 +222,7 @@ export default function ReportIssue() {
                             ? "bg-red-100 border-red-400 text-red-700"
                             : "bg-slate-100 border-gray-200 text-slate-700"
                         } hover:bg-slate-200 transition-colors`}
-                        onClick={() => handleCategoryButton(cat.categoryId)}
+                        onClick={() => setCategoryId(cat.categoryId)}
                       >
                         {cat.categoryName}
                       </button>
@@ -225,33 +230,34 @@ export default function ReportIssue() {
                   </div>
                 )}
               </div>
+
               {/* Description */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Description *
                 </label>
                 <textarea
-                  id="description"
-                  placeholder="Provide detailed information about the issue"
+                  placeholder={PLACEHOLDERS.description}
                   className="w-full px-4 py-3 min-h-32 border rounded-lg text-sm"
-                  maxLength={500}
+                  maxLength={DESCRIPTION_MAX_LENGTH}
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
                 <div className="text-xs text-gray-500 text-right mt-1">
-                  {descCount} / 500
+                  {description.length} / {DESCRIPTION_MAX_LENGTH}
                 </div>
               </div>
             </div>
           </div>
+
           {/* Location Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-6">
               {LABELS.locationInfo}
             </h2>
             <div className="space-y-4">
-              {/* Ward Number */}
+              {/* Ward */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Ward Number *
@@ -272,7 +278,8 @@ export default function ReportIssue() {
                   ))}
                 </select>
               </div>
-              {/* Map Location */}
+
+              {/* Map */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Pick Location on Map *
@@ -286,6 +293,7 @@ export default function ReportIssue() {
                   </div>
                 </div>
               </div>
+
               {/* Address */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
@@ -293,8 +301,7 @@ export default function ReportIssue() {
                 </label>
                 <input
                   type="text"
-                  id="address"
-                  placeholder="Address and nearby landmarks"
+                  placeholder={PLACEHOLDERS.address}
                   className="w-full px-4 py-3 border rounded-lg text-sm"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -302,6 +309,7 @@ export default function ReportIssue() {
               </div>
             </div>
           </div>
+
           {/* Upload Photos */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-2">
@@ -319,6 +327,7 @@ export default function ReportIssue() {
               MAX_TOTAL_SIZE={MAX_TOTAL_SIZE}
             />
           </div>
+
           {/* Priority Level */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-2">
@@ -334,7 +343,9 @@ export default function ReportIssue() {
                   <div
                     key={opt.value}
                     onClick={() => setPriority(opt.value)}
-                    className={`flex items-start space-x-3 p-4 rounded-lg border-2 ${isSelected ? opt.selectedClass : "border-gray-200"} hover:border-gray-300 transition-all cursor-pointer`}
+                    className={`flex items-start space-x-3 p-4 rounded-lg border-2 ${
+                      isSelected ? opt.selectedClass : "border-gray-200"
+                    } hover:border-gray-300 transition-all cursor-pointer`}
                   >
                     <input
                       type="radio"
@@ -345,9 +356,7 @@ export default function ReportIssue() {
                     />
                     <div className="flex-1">
                       <label className="cursor-pointer flex items-center gap-2">
-                        <span
-                          className={`w-2 h-2 rounded-full ${opt.dot}`}
-                        ></span>
+                        <span className={`w-2 h-2 rounded-full ${opt.dot}`} />
                         {opt.label}
                       </label>
                       <div className="text-xs text-gray-500 mt-1">
@@ -359,45 +368,49 @@ export default function ReportIssue() {
               })}
             </div>
           </div>
+
           {/* Contact Preferences */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-6">
               {LABELS.contactPreferences}
             </h2>
-            <div className="space-y-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={emailUpdates}
-                  onChange={(e) => setEmailUpdates(e.target.checked)}
-                  className="w-4 h-4 rounded accent-blue-600"
-                />
-                <span>Send me email updates about this issue</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={emailUpdates}
+                onChange={(e) => setEmailUpdates(e.target.checked)}
+                className="w-4 h-4 rounded accent-blue-600"
+              />
+              <span>Send me email updates about this issue</span>
+            </label>
           </div>
+
           {/* Form Actions */}
           <div className="border-t border-gray-200 bg-white rounded-lg shadow-sm p-6 flex gap-4 justify-end">
             <button
               type="button"
               className="px-8 py-2 border border-gray-400 rounded-lg bg-white text-gray-700 hover:bg-gray-50"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/citizen/dashboard")}
             >
               {LABELS.cancel}
             </button>
             <button
               type="submit"
-              className={`px-8 py-2 rounded-lg text-white font-semibold bg-red-500 hover:bg-red-600 shadow-lg ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-8 py-2 rounded-lg text-white font-semibold bg-red-500 hover:bg-red-600 shadow-lg ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               disabled={loading}
             >
               {LABELS.submit}
             </button>
           </div>
+
           {error && <div className="text-red-500 mt-2">{error}</div>}
         </form>
-        {/* SIDEBAR */}
+
+        {/* ─── SIDEBAR ─── */}
         <aside className="lg:col-span-1 sticky top-24 space-y-6">
-          {/* Tips Card */}
+          {/* Tips */}
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
             <h3 className="text-lg text-gray-900 mb-4">{LABELS.tipsHeader}</h3>
             <div className="space-y-3 text-sm text-gray-700">
@@ -409,7 +422,8 @@ export default function ReportIssue() {
               ))}
             </div>
           </div>
-          {/* Impact Stats Card */}
+
+          {/* Impact Stats */}
           <ImpactStatsCard
             filed={impactStats.filed}
             resolved={impactStats.resolved}
@@ -418,6 +432,26 @@ export default function ReportIssue() {
           />
         </aside>
       </div>
+
+      {/* ─── COMPLAINT DETAILS MODAL ─── */}
+      {submittedComplaint && (
+        <ComplaintDetails
+          isOpen={!!submittedComplaint}
+          onClose={resetForm}
+          issueData={{
+            id: submittedComplaint.trackingId,
+            title: submittedComplaint.title,
+            description: submittedComplaint.description || "",
+            category: submittedComplaint.categoryName,
+            location: submittedComplaint.locationAddress || address,
+            submittedBy: submittedComplaint.citizenName,
+            date: new Date(submittedComplaint.createdAt).toLocaleDateString(
+              "en-US",
+              { year: "numeric", month: "short", day: "numeric" },
+            ),
+          }}
+        />
+      )}
     </div>
   );
 }
