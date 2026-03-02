@@ -57,10 +57,14 @@ namespace WardDesk
             {
                 options.AddPolicy("AllowReact", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        policy.SetIsOriginAllowed(_ => true)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    }
+              
                 });
             });
 

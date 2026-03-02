@@ -16,7 +16,7 @@ namespace WardDesk.DTO
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
         public string? LocationAddress { get; set; }
-        
+        public int? WardNumber { get; set; }
         public string? PriorityLevel { get; set; }
 
         /// <summary>

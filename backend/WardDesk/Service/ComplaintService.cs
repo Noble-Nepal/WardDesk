@@ -44,7 +44,7 @@ namespace WardDesk.Service
                 Description = request.Description,
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
-                WardNumber = citizen.WardNumber,
+                WardNumber = request.WardNumber ?? citizen.WardNumber,
                 LocationAddress = request.LocationAddress,
                 PriorityLevel = string.IsNullOrWhiteSpace(request.PriorityLevel) ? "Medium Priority" : request.PriorityLevel,
                 CreatedAt = DateTime.UtcNow,
