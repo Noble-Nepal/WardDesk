@@ -65,3 +65,21 @@ export const LABELS = {
   tipsHeader: "Tips for Better Reports",
   impactHeader: "Your Impact",
 };
+// Validation Messages
+export const VALIDATION_MESSAGES = {
+  requiredFields:
+    "Please fill all required fields and pick a location on the map.",
+  submitError: "Failed to submit issue. Please try again.",
+  categoryError: "Failed to load categories.",
+};
+//  Toast Config
+export const TOAST_CONFIG = {
+  title: "Report Submitted!",
+  message: "Your issue has been successfully filed.",
+  duration: 4000,
+  style: {
+    padding: "0",
+    background: "transparent",
+    boxShadow: "none",
+  },
+};

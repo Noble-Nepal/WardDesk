@@ -1,5 +1,3 @@
-import { IMPACT_STATS } from "./reportIssueConstants";
-
 export const API_ENDPOINTS = {
   LOGIN: "/auth/login",
   REGISTER: "/auth/register",
@@ -17,6 +15,6 @@ export const API_ENDPOINTS = {
   COMPLAINT_CATEGORIES: "/complaint/categories",
   IMPACT_STATS: (citizenId) =>
     citizenId
-      ? `/complaints/impact-stats?citizenId=${citizenId}`
-      : "/complaints/impact-stats",
+      ? `/complaint/impact-stats?citizenId=${citizenId}`
+      : "/complaint/impact-stats",
 };

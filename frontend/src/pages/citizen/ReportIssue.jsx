@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from "react";
+import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import NepalMapPicker from "../../components/map/mapPicker";
-import PhotoUploader from "../../components/reports/PhotoUploader";
+import PhotoUploader from "../../components/reportIssue/PhotoUploader";
+import ImpactStatsCard from "../../components/reportIssue/ImpactStatsCard";
 import handleImageUpload from "../../utils/handleImageUpload";
 import {
   WARD_OPTIONS,
   PRIORITY_OPTIONS,
   MAX_PHOTOS,
   MAX_TOTAL_SIZE,
+  DESCRIPTION_MAX_LENGTH,
+  DEFAULT_PRIORITY,
   REPORT_TIPS,
-  IMPACT_STATS,
+  VALIDATION_MESSAGES,
+  TOAST_CONFIG,
   LABELS,
+  PLACEHOLDERS,
 } from "../../constants/reportIssueConstants";
 import {
   createComplaint,
   getComplaintCategories,
+  getImpactStats,
 } from "../../api/complaintApi";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
@@ -22,6 +29,9 @@ import SuccessToast from "../../components/ui/SuccessToast";
 
 export default function ReportIssue() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const citizenId = user?.userId;
+
   // Form state
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -34,6 +44,14 @@ export default function ReportIssue() {
   const [photos, setPhotos] = useState([]);
   const [priority, setPriority] = useState("low");
   const [emailUpdates, setEmailUpdates] = useState(true);
+
+  // Impact stats state
+  const [impactStats, setImpactStats] = useState({
+    filed: 0,
+    resolved: 0,
+    message: "",
+  });
+
   // Error/loading
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,6 +68,12 @@ export default function ReportIssue() {
       .catch(() => setError("Failed to load categories."))
       .finally(() => setCategoriesLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (citizenId) {
+      getImpactStats(citizenId).then((res) => setImpactStats(res.data));
+    }
+  }, [citizenId]);
 
   // Quick category selection (set as ID)
   const handleCategoryButton = (catId) => setCategoryId(catId);
@@ -104,7 +128,7 @@ export default function ReportIssue() {
       );
 
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("citizen/dashboard");
       }, 1000);
     } catch {
       setError("Failed to submit issue. Please try again.");
@@ -386,22 +410,12 @@ export default function ReportIssue() {
             </div>
           </div>
           {/* Impact Stats Card */}
-          <div className="bg-linear-to-br from-[#2B4AA0] to-[#1a2d6b] text-white rounded-lg p-6 shadow-lg">
-            <h3 className="text-lg mb-4">{LABELS.impactHeader}</h3>
-            <div className="space-y-4">
-              <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="text-4xl mb-1">{IMPACT_STATS.filed}</div>
-                <div className="text-sm opacity-90">Reports Filed</div>
-              </div>
-              <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="text-4xl mb-1">{IMPACT_STATS.resolved}</div>
-                <div className="text-sm opacity-90">Resolved</div>
-              </div>
-              <div className="text-sm opacity-90 border-t border-white/20 pt-4 text-center">
-                {IMPACT_STATS.message}
-              </div>
-            </div>
-          </div>
+          <ImpactStatsCard
+            filed={impactStats.filed}
+            resolved={impactStats.resolved}
+            message={impactStats.message}
+            header={LABELS.impactHeader}
+          />
         </aside>
       </div>
     </div>
