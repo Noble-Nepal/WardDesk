@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
 
 import { getAllComplaints } from "../../api/complaintApi";
@@ -13,6 +13,7 @@ import {
 
 export default function ComplaintDashboard() {
   const navigate = useNavigate();
+  const { searchQuery } = useOutletContext();
 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +32,23 @@ export default function ComplaintDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredComplaints =
-    activeFilter === "all"
-      ? complaints
-      : complaints.filter(
-          (c) => c.categoryName?.toLowerCase() === activeFilter.toLowerCase(),
-        );
+  const filteredComplaints = complaints.filter((c) => {
+    const matchesCategory =
+      activeFilter === "all" ||
+      c.categoryName?.toLowerCase() === activeFilter.toLowerCase();
+
+    const q = searchQuery?.toLowerCase() || "";
+    const matchesSearch =
+      !q ||
+      c.title?.toLowerCase().includes(q) ||
+      c.description?.toLowerCase().includes(q) ||
+      c.categoryName?.toLowerCase().includes(q) ||
+      c.locationAddress?.toLowerCase().includes(q) ||
+      c.citizenName?.toLowerCase().includes(q) ||
+      c.trackingId?.toLowerCase().includes(q);
+
+    return matchesCategory && matchesSearch;
+  });
 
   const sortedComplaints = [...filteredComplaints].sort(
     (a, b) => b.netVotes - a.netVotes,
@@ -47,7 +59,7 @@ export default function ComplaintDashboard() {
 
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [activeFilter]);
+  }, [activeFilter, searchQuery]);
 
   // Open ComplaintDetails modal
   const handleViewDetails = (complaint) => {
