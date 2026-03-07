@@ -16,6 +16,7 @@ namespace WardDesk.Database
         public DbSet<ComplaintCategory> ComplaintCategories { get; set; }
         public DbSet<ComplaintStatus> ComplaintStatuses { get; set; }
         public DbSet<ComplaintPhoto> ComplaintPhotos { get; set; }
+        public DbSet<ComplaintVote> ComplaintVotes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
