@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { MdAdd } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { MdAdd, MdClose } from "react-icons/md";
+import { HiOutlineSearch } from "react-icons/hi";
 
 import { getAllComplaints } from "../../api/complaintApi";
 import ComplaintCard from "../../components/complaint/ComplaintCard";
@@ -13,8 +14,8 @@ import {
 
 export default function ComplaintDashboard() {
   const navigate = useNavigate();
-  const { searchQuery = "" } = useOutletContext();
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,14 +62,13 @@ export default function ComplaintDashboard() {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [activeFilter, searchQuery]);
 
-  // Open ComplaintDetails modal
   const handleViewDetails = (complaint) => {
     setSelectedComplaint(complaint);
   };
 
   return (
     <div className="bg-white min-h-screen">
-      {/* HEADER  */}
+      {/* HEADER */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -90,7 +90,7 @@ export default function ComplaintDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* TOP VOTED ISSUES  */}
+        {/* TOP VOTED ISSUES */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
           <div className="mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -99,6 +99,27 @@ export default function ComplaintDashboard() {
             <p className="text-sm sm:text-base text-gray-600 mt-1">
               Help prioritize community issues by voting
             </p>
+          </div>
+
+          {/* ✅ Search Bar — right here, no prop drilling */}
+          <div className="relative mb-6 sm:mb-8">
+            <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, category, location, tracking ID..."
+              className="w-full pl-10 pr-9 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <MdClose className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
 
           {/* Filter Tabs */}
@@ -166,7 +187,7 @@ export default function ComplaintDashboard() {
           )}
         </div>
 
-        {/* HOW IT WORKS (reused)  */}
+        {/* HOW IT WORKS */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <HowItWorks />
         </div>

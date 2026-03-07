@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import DashboardHeader from "../components/common/header/DashboardHeader";
@@ -7,7 +7,6 @@ import Footer from "../components/common/footer/Footer";
 
 const CitizenLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const handleMenuToggle = useCallback(() => {
     setSidebarOpen((prev) => !prev);
@@ -17,19 +16,14 @@ const CitizenLayout = () => {
     setSidebarOpen(false);
   }, []);
 
-  const outletContext = useMemo(() => ({ searchQuery }), [searchQuery]);
-
   return (
     <ProtectedRoute allowedRoles={["citizen"]}>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <DashboardHeader
-          onMenuToggle={handleMenuToggle}
-          onSearch={setSearchQuery}
-        />
+        <DashboardHeader onMenuToggle={handleMenuToggle} />
         <div className="flex flex-1 pt-16">
           <Sidebar isOpen={sidebarOpen} onClose={handleCloseSidebar} />
           <main className="flex-1 min-w-0 p-4 sm:p-6">
-            <Outlet context={outletContext} />
+            <Outlet />
           </main>
         </div>
         <Footer />

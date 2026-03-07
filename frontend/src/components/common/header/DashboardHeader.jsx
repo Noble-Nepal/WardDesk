@@ -1,11 +1,10 @@
 import { HiOutlineMenu } from "react-icons/hi";
 import HeaderLogo from "./HeaderLogo";
-import HeaderSearch from "./HeaderSearch";
 import HeaderNotification from "./HeaderNotification";
 import HeaderUserProfile from "./HeaderUserProfile";
 import useAuth from "../../../hooks/useAuth";
 
-const DashboardHeader = ({ onMenuToggle, onSearch }) => {
+const DashboardHeader = ({ onMenuToggle }) => {
   const { user, role } = useAuth();
 
   return (
@@ -13,20 +12,13 @@ const DashboardHeader = ({ onMenuToggle, onSearch }) => {
       <div className="h-full px-4 sm:px-6 flex items-center justify-between">
         {/* Left: Menu Button + Logo */}
         <div className="flex items-center gap-3">
-          {/* Mobile menu button */}
           <button
             onClick={onMenuToggle}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <HiOutlineMenu className="w-5 h-5 text-gray-600" />
           </button>
-
           <HeaderLogo role={role} />
-        </div>
-
-        {/* Center: Search */}
-        <div className="flex-1 flex justify-center px-4">
-          <HeaderSearch onSearch={onSearch} />
         </div>
 
         {/* Right: Notification + Profile */}
