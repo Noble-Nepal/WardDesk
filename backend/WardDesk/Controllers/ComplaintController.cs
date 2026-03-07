@@ -146,5 +146,7 @@ namespace WardDesk.Controllers
                 throw new UnauthorizedAccessException("Invalid token");
             return Guid.Parse(userIdClaim);
         }
+
+
     }
 }
