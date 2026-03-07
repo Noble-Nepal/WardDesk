@@ -21,11 +21,7 @@ namespace WardDesk.Database
             base.OnModelCreating(modelBuilder);
             
 
-            //modelBuilder.Entity<User>()
-            //    .HasOne(u => u.Role)
-            //    .WithMany()
-            //    .HasForeignKey(u => u.RoleId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+       
 
             modelBuilder.Entity<Complaint>()
                 .HasOne(c => c.Citizen)
@@ -41,8 +37,11 @@ namespace WardDesk.Database
                 .HasForeignKey(c => c.VerifiedBy)
                 .OnDelete(DeleteBehavior.SetNull);
 
-           
-            
+            modelBuilder.Entity<ComplaintVote>()
+               .HasIndex(v => new { v.ComplaintId, v.UserId })
+               .IsUnique();
+
+
         }
     }
 }
