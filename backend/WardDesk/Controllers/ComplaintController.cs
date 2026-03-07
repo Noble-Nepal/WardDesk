@@ -86,7 +86,7 @@ namespace WardDesk.Controllers
         /// GET api/complaint — Get all complaints (admin/technician view)
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "admin,technician")]
+        [Authorize(Roles = "citizen,admin,technician")]
         public async Task<ActionResult<List<ComplaintResponseDTO>>> GetAllComplaints()
         {
             try
@@ -96,7 +96,8 @@ namespace WardDesk.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Server error", error = ex.Message });
+                return StatusCode(500, new { message = "" +
+                    "Server error", error = ex.Message });
             }
         }
         /// <summary>
