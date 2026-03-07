@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Outlet } from "react-router-dom";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import DashboardHeader from "../components/common/header/DashboardHeader";
@@ -13,6 +13,12 @@ const CitizenLayout = () => {
     setSidebarOpen((prev) => !prev);
   }, []);
 
+  const handleCloseSidebar = useCallback(() => {
+    setSidebarOpen(false);
+  }, []);
+
+  const outletContext = useMemo(() => ({ searchQuery }), [searchQuery]);
+
   return (
     <ProtectedRoute allowedRoles={["citizen"]}>
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -21,9 +27,9 @@ const CitizenLayout = () => {
           onSearch={setSearchQuery}
         />
         <div className="flex flex-1 pt-16">
-          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <Sidebar isOpen={sidebarOpen} onClose={handleCloseSidebar} />
           <main className="flex-1 min-w-0 p-4 sm:p-6">
-            <Outlet context={{ searchQuery }} />
+            <Outlet context={outletContext} />
           </main>
         </div>
         <Footer />

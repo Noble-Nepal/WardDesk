@@ -8,9 +8,10 @@ const HeaderSearch = ({ onSearch }) => {
   const onSearchRef = useRef(onSearch);
 
   useEffect(() => {
-    onSearchRef.current = onSearch; // keep ref in sync
+    onSearchRef.current = onSearch;
   }, [onSearch]);
 
+  // Debounce: fire search 300ms after user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       onSearchRef.current?.(query.trim());
@@ -20,7 +21,13 @@ const HeaderSearch = ({ onSearch }) => {
 
   const handleClear = () => {
     setQuery("");
-    if (onSearch) onSearch("");
+    onSearchRef.current?.("");
+  };
+
+  // Immediate search on Enter key
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearchRef.current?.(query.trim());
   };
 
   return (
@@ -38,7 +45,7 @@ const HeaderSearch = ({ onSearch }) => {
       {/* Mobile: Expanded Search Bar */}
       {mobileOpen && (
         <div className="md:hidden flex items-center gap-2 w-full">
-          <div className="relative flex-1">
+          <form onSubmit={handleSubmit} className="relative flex-1">
             <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -50,14 +57,16 @@ const HeaderSearch = ({ onSearch }) => {
             />
             {query && (
               <button
+                type="button"
                 onClick={handleClear}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 <MdClose className="w-4 h-4 text-gray-400" />
               </button>
             )}
-          </div>
+          </form>
           <button
+            type="button"
             onClick={() => {
               setMobileOpen(false);
               handleClear();
@@ -70,7 +79,10 @@ const HeaderSearch = ({ onSearch }) => {
       )}
 
       {/* Tablet+: Full Search Bar */}
-      <div className="hidden md:block relative w-64 lg:w-80">
+      <form
+        onSubmit={handleSubmit}
+        className="hidden md:block relative w-64 lg:w-80"
+      >
         <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
           type="text"
@@ -81,13 +93,14 @@ const HeaderSearch = ({ onSearch }) => {
         />
         {query && (
           <button
+            type="button"
             onClick={handleClear}
             className="absolute right-3 top-1/2 -translate-y-1/2"
           >
             <MdClose className="w-4 h-4 text-gray-400 hover:text-gray-600" />
           </button>
         )}
-      </div>
+      </form>
     </>
   );
 };
