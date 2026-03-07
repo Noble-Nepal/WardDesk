@@ -13,7 +13,7 @@ import {
 
 export default function ComplaintDashboard() {
   const navigate = useNavigate();
-  const { searchQuery } = useOutletContext();
+  const { searchQuery = "" } = useOutletContext();
 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
