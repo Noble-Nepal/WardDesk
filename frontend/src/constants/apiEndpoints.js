@@ -17,4 +17,6 @@ export const API_ENDPOINTS = {
     citizenId
       ? `/complaint/impact-stats?citizenId=${citizenId}`
       : "/complaint/impact-stats",
+  VOTE: "/complaint/vote",
+  MY_VOTE: (complaintId) => `/complaint/${complaintId}/my-vote`,
 };
