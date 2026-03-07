@@ -8,7 +8,8 @@ export const createComplaint = (data) =>
 // Get logged-in user's complaints
 export const getMyComplaints = () =>
   axiosInstance.get(API_ENDPOINTS.GET_MY_COMPLAINTS);
-
+export const getAllComplaints = () =>
+  axiosInstance.get(API_ENDPOINTS.GET_ALL_COMPLAINTS);
 // Track complaint by trackingId
 export const trackComplaint = (trackingId) =>
   axiosInstance.get(`${API_ENDPOINTS.TRACK_COMPLAINT}/${trackingId}`);
