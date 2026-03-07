@@ -13,10 +13,11 @@ namespace WardDesk.Controllers
     public class ComplaintController : ControllerBase
     {
         private readonly ComplaintService _complaintService;
-
-        public ComplaintController(ComplaintService complaintService)
+        private readonly VoteService _voteService;
+        public ComplaintController(ComplaintService complaintService, VoteService voteService)
         {
             _complaintService = complaintService;
+            _voteService = voteService;
         }
         /// <summary>
         /// POST api/complaint — Citizen creates a new complaint
@@ -147,6 +148,46 @@ namespace WardDesk.Controllers
             return Guid.Parse(userIdClaim);
         }
 
+        /// <summary>
+        /// POST api/complaint/vote — Cast, switch, or toggle off a vote
+        /// </summary>
+        [HttpPost("vote")]
+        [Authorize(Roles = "citizen,admin,technician")]
+        public async Task<ActionResult<VoteResponseDTO>> Vote([FromBody] VoteDTO request)
+        {
+            try
+            {
+                var userId = GetUserId();
+                var result = await _voteService.VoteAsync(userId, request);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", error = ex.Message });
+            }
+        }
 
+        /// <summary>
+        /// GET api/complaint/{complaintId}/my-vote — Get current user's vote
+        /// </summary>
+        [HttpGet("{complaintId}/my-vote")]
+        [Authorize]
+        public async Task<ActionResult> GetMyVote(Guid complaintId)
+        {
+            try
+            {
+                var userId = GetUserId();
+                var voteType = await _voteService.GetUserVoteAsync(userId, complaintId);
+                return Ok(new { voteType });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", error = ex.Message });
+            }
+        }
     }
 }
