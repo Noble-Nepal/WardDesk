@@ -19,3 +19,11 @@ export const getComplaintCategories = () =>
 //Get Stats for citizen's Complaints and their contribution
 export const getImpactStats = (citizenId) =>
   axiosInstance.get(API_ENDPOINTS.IMPACT_STATS(citizenId));
+
+// Vote on a complaint
+export const voteOnComplaint = (complaintId, voteType) =>
+  axiosInstance.post(API_ENDPOINTS.VOTE, { complaintId, voteType });
+
+// Get current user's vote on a complaint
+export const getMyVote = (complaintId) =>
+  axiosInstance.get(API_ENDPOINTS.MY_VOTE(complaintId));
