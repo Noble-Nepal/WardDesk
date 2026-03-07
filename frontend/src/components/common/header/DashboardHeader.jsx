@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
 import { HiOutlineMenu } from "react-icons/hi";
 import HeaderLogo from "./HeaderLogo";
 import HeaderSearch from "./HeaderSearch";
 import HeaderNotification from "./HeaderNotification";
 import HeaderUserProfile from "./HeaderUserProfile";
 import useAuth from "../../../hooks/useAuth";
+
 const DashboardHeader = ({ onMenuToggle, onSearch }) => {
   const { user, role } = useAuth();
 

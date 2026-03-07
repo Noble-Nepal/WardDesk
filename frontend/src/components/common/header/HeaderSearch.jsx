@@ -1,19 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HiOutlineSearch } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 
 const HeaderSearch = ({ onSearch }) => {
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const onSearchRef = useRef(onSearch);
 
-  // Debounce: emit search after user stops typing (300ms)
   useEffect(() => {
-    if (!onSearch) return;
+    onSearchRef.current = onSearch; // keep ref in sync
+  }, [onSearch]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
-      onSearch(query.trim());
+      onSearchRef.current?.(query.trim());
     }, 300);
     return () => clearTimeout(timer);
-  }, [query, onSearch]);
+  }, [query]);
 
   const handleClear = () => {
     setQuery("");
