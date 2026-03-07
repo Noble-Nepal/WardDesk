@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { MdContentCopy, MdCheck, MdDownload } from "react-icons/md";
-
-const QRCodeSection = ({ trackingId, title }) => {
+import { getStatusConfig } from "../../../constants/reportIssueConstants";
+const QRCodeSection = ({ trackingId, title, complaintData }) => {
   const [copied, setCopied] = useState(false);
 
   const qrData = `${window.location.origin}/track/${trackingId}`;
+  const statusConfig = getStatusConfig(complaintData?.status);
   const handleCopyId = () => {
     navigator.clipboard.writeText(trackingId);
     setCopied(true);
@@ -42,10 +43,20 @@ const QRCodeSection = ({ trackingId, title }) => {
       <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 w-full">
         {/* QR Header */}
         <div className="text-center mb-6">
-          {/* Active Badge */}
+          {/* Status Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200 mb-4">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm text-gray-700">Active</span>
+            <span
+              className={`w-2 h-2 rounded-full ${statusConfig.dotClass} ${
+                statusConfig.dotClass === "bg-yellow-500" ||
+                statusConfig.dotClass === "bg-blue-500" ||
+                statusConfig.dotClass === "bg-orange-500"
+                  ? "animate-pulse"
+                  : ""
+              }`}
+            />
+            <span className={`text-sm ${statusConfig.textClass}`}>
+              {statusConfig.label}
+            </span>
           </div>
           <h3 className="text-base sm:text-lg text-gray-900 mb-1">
             Tracking QR Code
@@ -96,15 +107,13 @@ const QRCodeSection = ({ trackingId, title }) => {
           </div>
 
           {/* Download Button */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button
-              onClick={handleDownloadQR}
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm rounded-lg transition-colors"
-            >
-              <MdDownload className="w-4 h-4 mr-2" />
-              Download
-            </button>
-          </div>
+          <button
+            onClick={handleDownloadQR}
+            className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors"
+          >
+            <MdDownload className="w-4 h-4 mr-2" />
+            Download QR Code
+          </button>
         </div>
       </div>
     </div>

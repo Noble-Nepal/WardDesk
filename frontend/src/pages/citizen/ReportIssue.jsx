@@ -445,6 +445,11 @@ export default function ReportIssue() {
             category: submittedComplaint.categoryName,
             location: submittedComplaint.locationAddress || address,
             submittedBy: submittedComplaint.citizenName,
+            priority: submittedComplaint.priorityLevel,
+            ward: submittedComplaint.wardNumber,
+            votes: submittedComplaint.netVotes || 0,
+            isVerified: submittedComplaint.isVerified || false,
+            status: submittedComplaint.statusName,
             date: new Date(submittedComplaint.createdAt).toLocaleDateString(
               "en-US",
               { year: "numeric", month: "short", day: "numeric" },

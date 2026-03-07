@@ -107,3 +107,67 @@ export const PLACEHOLDERS = {
   description: "Provide detailed information about the issue",
   address: "Address and nearby landmarks",
 };
+export const TIMELINE_STEPS = [
+  {
+    title: "Issue Submitted",
+    description: "Your complaint has been received",
+    active: true,
+  },
+  {
+    title: "Admin Review",
+    description: "Verification and validation in progress",
+    active: false,
+  },
+  {
+    title: "Assignment",
+    description: "Technician will be assigned",
+    active: false,
+  },
+  {
+    title: "Resolution",
+    description: "Issue will be resolved",
+    active: false,
+  },
+];
+export const STATUS_CONFIG = {
+  pending: {
+    label: "Pending",
+    dotClass: "bg-yellow-500",
+    textClass: "text-yellow-700",
+  },
+  "in progress": {
+    label: "In Progress",
+    dotClass: "bg-blue-500",
+    textClass: "text-blue-700",
+  },
+  assigned: {
+    label: "Assigned",
+    dotClass: "bg-orange-500",
+    textClass: "text-orange-700",
+  },
+  resolved: {
+    label: "Resolved",
+    dotClass: "bg-green-500",
+    textClass: "text-green-700",
+  },
+  rejected: {
+    label: "Rejected",
+    dotClass: "bg-red-500",
+    textClass: "text-red-700",
+  },
+  closed: {
+    label: "Closed",
+    dotClass: "bg-gray-500",
+    textClass: "text-gray-700",
+  },
+};
+
+export const getStatusConfig = (status) => {
+  return (
+    STATUS_CONFIG[status?.toLowerCase()] || {
+      label: status || "Unknown",
+      dotClass: "bg-gray-500",
+      textClass: "text-gray-700",
+    }
+  );
+};
