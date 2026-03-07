@@ -6,15 +6,18 @@ import Sidebar from "../components/common/sidebar/SideBar";
 import Footer from "../components/common/footer/Footer";
 const CitizenLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
   return (
     <ProtectedRoute allowedRoles={["citizen"]}>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <DashboardHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+        <DashboardHeader
+          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          onSearch={setSearchQuery}
+        />
         <div className="flex flex-1 pt-16">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className="flex-1 min-w-0 p-4 sm:p-6">
-            <Outlet />
+            <Outlet context={{ searchQuery }} />
           </main>
         </div>
         <Footer />

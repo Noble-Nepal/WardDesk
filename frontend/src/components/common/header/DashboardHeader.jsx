@@ -1,10 +1,11 @@
+import { useState, useEffect } from "react";
 import { HiOutlineMenu } from "react-icons/hi";
 import HeaderLogo from "./HeaderLogo";
 import HeaderSearch from "./HeaderSearch";
 import HeaderNotification from "./HeaderNotification";
 import HeaderUserProfile from "./HeaderUserProfile";
 import useAuth from "../../../hooks/useAuth";
-const DashboardHeader = ({ onMenuToggle }) => {
+const DashboardHeader = ({ onMenuToggle, onSearch }) => {
   const { user, role } = useAuth();
 
   return (
@@ -23,9 +24,9 @@ const DashboardHeader = ({ onMenuToggle }) => {
           <HeaderLogo role={role} />
         </div>
 
-        {/* Center: Search (tablet+) */}
+        {/* Center: Search */}
         <div className="flex-1 flex justify-center px-4">
-          <HeaderSearch />
+          <HeaderSearch onSearch={onSearch} />
         </div>
 
         {/* Right: Notification + Profile */}

@@ -4,6 +4,7 @@ import { MdAdd } from "react-icons/md";
 
 import { getAllComplaints } from "../../api/complaintApi";
 import ComplaintCard from "../../components/complaint/ComplaintCard";
+import ComplaintDetails from "../../components/complaint/complaintDetails/ComplaintDetails";
 import HowItWorks from "../../components/home/HowItWorks";
 import {
   CATEGORY_FILTERS,
@@ -18,6 +19,7 @@ export default function ComplaintDashboard() {
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   useEffect(() => {
     getAllComplaints()
@@ -47,13 +49,14 @@ export default function ComplaintDashboard() {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [activeFilter]);
 
+  // Open ComplaintDetails modal
   const handleViewDetails = (complaint) => {
-    navigate(`/track/${complaint.trackingId}`);
+    setSelectedComplaint(complaint);
   };
 
   return (
     <div className="bg-white min-h-screen">
-      {/* ════════ HEADER ════════ */}
+      {/* HEADER  */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -75,7 +78,7 @@ export default function ComplaintDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* ════════ TOP VOTED ISSUES ════════ */}
+        {/* TOP VOTED ISSUES  */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
           <div className="mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -151,11 +154,35 @@ export default function ComplaintDashboard() {
           )}
         </div>
 
-        {/* ════════ HOW IT WORKS (reused) ════════ */}
+        {/* HOW IT WORKS (reused)  */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <HowItWorks />
         </div>
       </div>
+
+      {selectedComplaint && (
+        <ComplaintDetails
+          isOpen={!!selectedComplaint}
+          onClose={() => setSelectedComplaint(null)}
+          issueData={{
+            id: selectedComplaint.trackingId,
+            title: selectedComplaint.title,
+            description: selectedComplaint.description || "",
+            category: selectedComplaint.categoryName,
+            location: selectedComplaint.locationAddress || "",
+            submittedBy: selectedComplaint.citizenName || "",
+            priority: selectedComplaint.priorityLevel,
+            ward: selectedComplaint.wardNumber,
+            votes: selectedComplaint.netVotes || 0,
+            isVerified: selectedComplaint.isVerified || false,
+            status: selectedComplaint.statusName,
+            date: new Date(selectedComplaint.createdAt).toLocaleDateString(
+              "en-US",
+              { year: "numeric", month: "short", day: "numeric" },
+            ),
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -88,7 +88,7 @@ export default function TrackComplaint() {
         <div className="relative bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="pr-12">
             <p className="text-xs text-gray-500 mb-1">Complaint Title:</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-words">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight wrap-break-word">
               {issueData.title}
             </h2>
             <div className="flex items-center gap-3 mt-3">
@@ -125,10 +125,10 @@ export default function TrackComplaint() {
             </h3>
             <div className="space-y-3">
               <div className="flex gap-3 p-3 bg-gray-50 rounded-xl">
-                <MdDescription className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                <MdDescription className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500 mb-1">Title</p>
-                  <p className="text-sm text-gray-900 break-words">
+                  <p className="text-sm text-gray-900 wrap-break-word">
                     {issueData.title}
                   </p>
                 </div>
@@ -139,7 +139,7 @@ export default function TrackComplaint() {
                   <MdNotes className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500 mb-1">Description</p>
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {issueData.description}
                     </p>
                   </div>
@@ -161,7 +161,7 @@ export default function TrackComplaint() {
                   <MdLocationOn className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500 mb-1">Location</p>
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {issueData.location}
                     </p>
                   </div>
@@ -201,7 +201,7 @@ export default function TrackComplaint() {
                     <MdPerson className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-500 mb-1">Reporter</p>
-                      <p className="text-sm text-gray-900 break-words">
+                      <p className="text-sm text-gray-900 wrap-break-word">
                         {issueData.submittedBy}
                       </p>
                     </div>
@@ -211,7 +211,7 @@ export default function TrackComplaint() {
                   <MdCalendarToday className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500 mb-1">Date</p>
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {issueData.date}
                     </p>
                   </div>
