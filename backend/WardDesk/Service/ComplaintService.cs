@@ -182,5 +182,24 @@ namespace WardDesk.Service
                 CitizenId = c.CitizenId,
             };
         }
+        public async Task<Complaint> UpdateStatusAsync(Guid complaintId, int newStatusId, Guid adminId)
+        {
+            var complaint = await _context.Complaints
+                .FirstOrDefaultAsync(c => c.ComplaintId == complaintId);
+
+            if (complaint == null)
+                throw new InvalidOperationException("Complaint not found.");
+
+            var status = await _context.ComplaintStatuses.FindAsync(newStatusId);
+            if (status == null)
+                throw new InvalidOperationException("Status not found.");
+
+            complaint.StatusId = newStatusId;
+            complaint.UpdatedAt = DateTime.UtcNow;
+            
+
+            await _context.SaveChangesAsync();
+            return complaint;
+        }
     }
 }

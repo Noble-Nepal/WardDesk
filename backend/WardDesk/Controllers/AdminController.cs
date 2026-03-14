@@ -202,6 +202,7 @@ namespace WardDesk.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "User deleted from system and Firebase." });
         }
+
     }
 
 }

@@ -190,6 +190,29 @@ namespace WardDesk.Controllers
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+        [HttpPut("{complaintId}/status")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateComplaintStatus(Guid complaintId, [FromBody] UpdateComplaintStatusDTO dto)
+        {
+            try
+            {
+                var adminId = GetUserId();
+                var complaint = await _complaintService.UpdateStatusAsync(complaintId, dto.StatusId, adminId);
 
+                return Ok(new
+                {
+                    complaint.ComplaintId,
+                    complaint.StatusId
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", error = ex.Message });
+            }
+        }
     }
 }
