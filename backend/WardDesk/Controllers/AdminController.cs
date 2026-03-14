@@ -1,9 +1,10 @@
 ﻿
 
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WardDesk.Database;
 using Microsoft.EntityFrameworkCore;
+using WardDesk.Database;
 namespace WardDesk.Controllers
 {
     [ApiController]
@@ -105,5 +106,102 @@ namespace WardDesk.Controllers
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+        [HttpGet("users")]
+        public async Task<ActionResult> GetAllUsers()
+        {
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.FullName,
+                    u.Email,
+                    u.PhoneNumber,
+                    u.Address,
+                    u.WardNumber,
+                    Role = u.Role != null ? u.Role.RoleName : null,
+                    u.IsActive,
+                    u.IsVerified,
+                    u.CreatedAt,
+                    u.UpdatedAt
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+        [HttpGet("users/{userId}")]
+        public async Task<ActionResult> GetUserById(Guid userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.UserId == userId)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.FullName,
+                    u.Email,
+                    u.PhoneNumber,
+                    u.Address,
+                    u.WardNumber,
+                    Role = u.Role != null ? u.Role.RoleName : null,
+                    u.IsActive,
+                    u.IsVerified,
+                    u.CreatedAt,
+                    u.UpdatedAt
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null) return NotFound(new { message = "User not found." });
+            return Ok(user);
+        }
+        [HttpPut("users/{userId}/role")]
+        public async Task<IActionResult> UpdateUserRole(Guid userId, [FromBody] int newRoleId)
+        {
+            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            if (user.RoleId == newRoleId)
+                return BadRequest(new { message = "User already has this role." });
+
+            var role = await _context.Roles.FindAsync(newRoleId);
+            if (role == null)
+                return BadRequest(new { message = "Role not found." });
+
+            user.RoleId = newRoleId;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                user.UserId,
+                oldRole = user.Role != null ? user.Role.RoleName : null,
+                newRole = role.RoleName
+            });
+        }
+        [HttpDelete("users/{userId}")]
+        public async Task<IActionResult> DeleteUser(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            if (!string.IsNullOrEmpty(user.FirebaseUid))
+            {
+                try
+                {
+                    await FirebaseAuth.DefaultInstance.DeleteUserAsync(user.FirebaseUid);
+                }
+                catch (FirebaseAuthException ex)
+                {
+                    return StatusCode(500, new { message = $"Failed to delete user from Firebase: {ex.Message}" });
+                }
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "User deleted from system and Firebase." });
+        }
     }
+
 }

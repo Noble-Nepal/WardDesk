@@ -190,5 +190,6 @@ namespace WardDesk.Controllers
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+
     }
 }
