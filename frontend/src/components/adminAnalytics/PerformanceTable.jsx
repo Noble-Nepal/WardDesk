@@ -47,7 +47,7 @@ export default function PerformanceTable({ data }) {
         <tbody>
           {data.map((tech, idx) => (
             <tr
-              key={tech.TechnicianName}
+              key={tech.technicianName || idx}
               className="border-b border-gray-100 hover:bg-gray-50"
             >
               <td className="py-4 px-4">
@@ -57,32 +57,38 @@ export default function PerformanceTable({ data }) {
               </td>
               <td className="py-4 px-4 flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                  {tech.TechnicianName.split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .substring(0, 2)}
+                  {tech.technicianName
+                    ? tech.technicianName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .substring(0, 2)
+                    : ""}
                 </div>
                 <div>
                   <div className="text-sm text-gray-900 font-medium">
-                    {tech.TechnicianName}
+                    {tech.technicianName || "Unknown"}
                   </div>
                   <div className="text-xs text-gray-500">Active Technician</div>
                 </div>
               </td>
               <td className="py-4 px-4">
                 <span className="bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-medium">
-                  {tech.CompletedAssignments} tasks
+                  {typeof tech.completedAssignments === "number"
+                    ? tech.completedAssignments
+                    : 0}{" "}
+                  tasks
                 </span>
               </td>
               <td className="py-4 px-4">
                 <span className="text-sm text-gray-900">
-                  {tech.AvgResolutionTimeHours
-                    ? tech.AvgResolutionTimeHours.toFixed(1) + " hours"
+                  {typeof tech.avgResolutionTimeHours === "number"
+                    ? tech.avgResolutionTimeHours.toFixed(1) + " hours"
                     : "N/A"}
                 </span>
               </td>
               <td className="py-4 px-4">
-                {tech.CompletedAssignments ? (
+                {tech.completedAssignments ? (
                   <span className="inline-flex items-center text-green-600">
                     <svg
                       className="w-4 h-4 mr-1"

@@ -23,29 +23,29 @@ export const citizenNavItems = [
 
 export const adminNavItems = [
   {
-    label: "Complaints",
+    label: "Dashboard",
     icon: "FileText",
     path: "/admin/dashboard",
   },
   {
-    label: "Technicians",
+    label: "Manage Technicians",
     icon: "Wrench",
-    path: "/admin/technicians",
+    path: "/admin/technician-management",
   },
   {
-    label: "Citizens",
+    label: "Manage Users",
     icon: "Users",
     path: "/admin/citizens",
   },
   {
-    label: "Categories",
+    label: "Manage Categories",
     icon: "FolderOpen",
     path: "/admin/categories",
   },
   {
-    label: "Analytics",
+    label: "Report Generation",
     icon: "BarChart3",
-    path: "/admin/analytics",
+    path: "/admin/generate-report",
   },
 ];
 

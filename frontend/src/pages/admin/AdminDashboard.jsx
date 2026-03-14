@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAdminDashboardAnalytics } from "../../api/analytics";
-
-// AdminAnalytics components
 import HeaderSection from "../../components/adminAnalytics/HeaderSection";
 import StatsOverviewCard from "../../components/adminAnalytics/StatsOverviewCard";
 import AnalyticsChartCard from "../../components/adminAnalytics/AnalyticsChartCard";
 import PerformanceTable from "../../components/adminAnalytics/PerformanceTable";
-
 import ComplaintsByCategoryChart from "../../components/adminAnalytics/ComplaintsByCategoryChart";
 import StatusPieChart from "../../components/adminAnalytics/StatusPieChart";
 import DailyTrendChart from "../../components/adminAnalytics/DailyTrendChart";
@@ -24,7 +21,10 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    getAdminDashboardAnalytics().then(setData);
+    getAdminDashboardAnalytics().then((d) => {
+      console.log(d); // You can remove this after verifying
+      setData(d);
+    });
   }, []);
 
   if (!data) {
@@ -36,21 +36,21 @@ export default function AdminDashboard() {
   }
 
   const cardConfig = [
-    { type: "total", label: "Total Complaints", value: data.TotalComplaints },
-    { type: "pending", label: "Pending Review", value: data.PendingComplaints },
-    { type: "assigned", label: "Assigned", value: data.AssignedComplaints },
+    { type: "total", label: "Total Complaints", value: data.totalComplaints },
+    { type: "pending", label: "Pending Review", value: data.pendingComplaints },
+    { type: "assigned", label: "Assigned", value: data.assignedComplaints },
     {
       type: "inProgress",
       label: "In Progress",
-      value: data.InProgressComplaints,
+      value: data.inProgressComplaints,
     },
-    { type: "resolved", label: "Resolved", value: data.ResolvedComplaints },
+    { type: "resolved", label: "Resolved", value: data.resolvedComplaints },
     {
       type: "avgTime",
       label: "Avg Resolution Time",
       value:
-        data.AvgResolutionTimeHours && !isNaN(data.AvgResolutionTimeHours)
-          ? data.AvgResolutionTimeHours.toFixed(1) + " hrs"
+        data.avgResolutionTimeHours && !isNaN(data.avgResolutionTimeHours)
+          ? data.avgResolutionTimeHours.toFixed(1) + " hrs"
           : "N/A",
     },
   ];
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
             title="Complaints by Category"
             description="Distribution by type"
           >
-            <ComplaintsByCategoryChart data={data.ComplaintsByCategory} />
+            <ComplaintsByCategoryChart data={data.complaintsByCategory} />
           </AnalyticsChartCard>
           <AnalyticsChartCard
             title="Status Distribution"
@@ -103,10 +103,10 @@ export default function AdminDashboard() {
           >
             <StatusPieChart
               data={{
-                Pending: data.PendingComplaints,
-                Assigned: data.AssignedComplaints,
-                "In Progress": data.InProgressComplaints,
-                Resolved: data.ResolvedComplaints,
+                Pending: data.pendingComplaints,
+                Assigned: data.assignedComplaints,
+                "In Progress": data.inProgressComplaints,
+                Resolved: data.resolvedComplaints,
               }}
             />
           </AnalyticsChartCard>
@@ -114,13 +114,13 @@ export default function AdminDashboard() {
             title="Daily Complaints Trend"
             description="New complaints per day"
           >
-            <DailyTrendChart data={data.ComplaintsByDay} />
+            <DailyTrendChart data={data.complaintsByDay} />
           </AnalyticsChartCard>
           <AnalyticsChartCard
             title="Complaints by Ward"
             description="Workload per ward"
           >
-            <ComplaintsByWardChart data={data.ComplaintsByWard} />
+            <ComplaintsByWardChart data={data.complaintsByWard} />
           </AnalyticsChartCard>
         </div>
 
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
           title="Technician Performance"
           description="Leaderboard for active technicians"
         >
-          <PerformanceTable data={data.TechnicianPerformances} />
+          <PerformanceTable data={data.technicianPerformances} />
         </AnalyticsChartCard>
       </main>
       <Footer />
