@@ -165,7 +165,6 @@ const Login = () => {
       <div className="w-full md:w-1/2 flex flex-col bg-white min-h-screen">
         <div className="flex justify-end items-center gap-4 px-8 py-6">
           <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800">
-            <span>नेपाली</span>
             <svg
               width="12"
               height="12"

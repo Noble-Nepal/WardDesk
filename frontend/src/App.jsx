@@ -13,6 +13,7 @@ import TrackComplaint from "./pages/public/TrackComplaint";
 //Citizen Pages
 import ComplaintDashboard from "./pages/citizen/ComplaintDashboard";
 import ReportIssue from "./pages/citizen/ReportIssue";
+import MyComplaints from "./pages/citizen/MyComplaints";
 //Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 //Technician Pages
@@ -30,6 +31,7 @@ const App = () => {
       {/* -------- CITIZEN ROUTES -------- */}
       <Route path="/citizen" element={<CitizenLayout />}>
         <Route path="dashboard" element={<ComplaintDashboard />} />
+        <Route path="my-complaints" element={<MyComplaints />} />
         <Route path="report-issue" element={<ReportIssue />} />
       </Route>
 
