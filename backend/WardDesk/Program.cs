@@ -53,6 +53,8 @@ namespace WardDesk
             //Vote Service
             builder.Services.AddScoped<VoteService>();
 
+            builder.Services.AddScoped<AssignmentService>();
+
 
             builder.Services.AddCors(options =>
             {
