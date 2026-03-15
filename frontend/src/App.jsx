@@ -16,6 +16,7 @@ import ReportIssue from "./pages/citizen/ReportIssue";
 import MyComplaints from "./pages/citizen/MyComplaints";
 //Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import TechnicianManagementDashboard from "./pages/admin/TechnicianManagementDashboard";
 //Technician Pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 
@@ -38,6 +39,10 @@ const App = () => {
       {/* -------- ADMIN ROUTES -------- */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route
+          path="technician-management"
+          element={<TechnicianManagementDashboard />}
+        />
       </Route>
 
       {/* -------- TECHNICIAN ROUTES -------- */}

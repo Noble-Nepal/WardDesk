@@ -29,4 +29,5 @@ export const API_ENDPOINTS = {
   GET_ALL_USERS: "/admin/users",
   // Assignment
   ASSIGN_COMPLAINT: "/assignment",
+  GET_UNASSIGNED_COMPLAINTS: "/assignment/unassigned-complaints",
 };

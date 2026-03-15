@@ -37,19 +37,11 @@ export function rejectTechnician(userId) {
   return axiosInstance.put(`${API_ENDPOINTS.REJECT_TECHNICIAN}/${userId}`);
 }
 
-// ------ Assign Complaint (NEW) ------
 export async function getUnassignedComplaints() {
-  // Ensure this endpoint is implemented in your backend!
   const res = await axiosInstance.get(API_ENDPOINTS.GET_UNASSIGNED_COMPLAINTS);
   return res.data;
 }
 
-/**
- * Assign a complaint to a technician
- * @param {string} complaintId
- * @param {string} technicianId
- * @param {string} [remarks] (optional)
- */
 export function assignComplaint({ complaintId, technicianId, remarks }) {
   return axiosInstance.post(API_ENDPOINTS.ASSIGN_COMPLAINT, {
     complaintId,
