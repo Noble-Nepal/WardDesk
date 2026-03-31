@@ -133,7 +133,7 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role.RoleName,
+                    Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
                     CreatedAt = u.CreatedAt,
