@@ -13,7 +13,7 @@ namespace WardDesk.Services
         private readonly AppDbContext _context;
         public AdminService(AppDbContext context) { _context = context; }
 
-        // Fetch all pending technicians
+        // Fetch all pending technicians (who are unverified)
         public async Task<List<UserDTO>> GetPendingTechniciansAsync()
         {
             return await _context.Users
@@ -28,7 +28,7 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role.RoleName,
+                    Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
                     CreatedAt = u.CreatedAt,
@@ -39,8 +39,11 @@ namespace WardDesk.Services
 
         public async Task<bool> VerifyTechnicianAsync(Guid userId)
         {
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified) return false;
+            var user = await _context.Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified)
+                return false;
+
             user.IsVerified = true;
             user.IsActive = true;
             user.UpdatedAt = DateTime.UtcNow;
@@ -50,8 +53,11 @@ namespace WardDesk.Services
 
         public async Task<bool> RejectTechnicianAsync(Guid userId)
         {
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified) return false;
+            var user = await _context.Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified)
+                return false;
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
@@ -59,7 +65,8 @@ namespace WardDesk.Services
 
         public async Task<List<UserDTO>> GetAllUsersAsync()
         {
-            return await _context.Users.Include(u => u.Role)
+            return await _context.Users
+                .Include(u => u.Role)
                 .Select(u => new UserDTO
                 {
                     UserId = u.UserId,
@@ -68,7 +75,7 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role != null ? u.Role.RoleName : null,
+                    Role = u.Role!.RoleName, 
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
                     CreatedAt = u.CreatedAt,
@@ -77,9 +84,10 @@ namespace WardDesk.Services
                 .ToListAsync();
         }
 
-        public async Task<UserDTO> GetUserByIdAsync(Guid userId)
+        public async Task<UserDTO?> GetUserByIdAsync(Guid userId)
         {
-            return await _context.Users.Include(u => u.Role)
+            return await _context.Users
+                .Include(u => u.Role)
                 .Where(u => u.UserId == userId)
                 .Select(u => new UserDTO
                 {
@@ -89,7 +97,7 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role != null ? u.Role.RoleName : null,
+                    Role = u.Role!.RoleName, // null-safe
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
                     CreatedAt = u.CreatedAt,
@@ -98,12 +106,17 @@ namespace WardDesk.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<(bool ok, string oldRole, string newRole)> UpdateUserRoleAsync(Guid userId, int newRoleId)
+        public async Task<(bool ok, string? oldRole, string? newRole)> UpdateUserRoleAsync(Guid userId, int newRoleId)
         {
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null || user.RoleId == newRoleId) return (false, null, null);
+            var user = await _context.Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null || user.RoleId == newRoleId)
+                return (false, null, null);
+
             var role = await _context.Roles.FindAsync(newRoleId);
-            if (role == null) return (false, null, null);
+            if (role == null)
+                return (false, null, null);
+
             var oldRole = user.Role?.RoleName;
             user.RoleId = newRoleId;
             user.UpdatedAt = DateTime.UtcNow;
@@ -114,16 +127,18 @@ namespace WardDesk.Services
         public async Task<bool> DeleteUserAsync(Guid userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null) return false;
+            if (user == null)
+                return false;
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        
         public async Task<List<UserDTO>> GetCitizensAsync()
         {
-            return await _context.Users.Include(u => u.Role)
+            return await _context.Users
+                .Include(u => u.Role)
                 .Where(u => u.Role != null && u.Role.RoleName.ToLower() == "citizen")
                 .Select(u => new UserDTO
                 {

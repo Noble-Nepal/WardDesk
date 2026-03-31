@@ -53,7 +53,8 @@ namespace WardDesk.Models
 
         [Column("refresh_token_expiry_time")]
         public DateTime? RefreshTokenExpiryTime { get; set; }
-
+        [Column("profile_photo_url")]
+        public string? ProfilePhotoUrl { get; set; }
         public Role? Role { get; set; }
     }
 }
