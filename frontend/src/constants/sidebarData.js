@@ -35,13 +35,9 @@ export const adminNavItems = [
   {
     label: "Manage Users",
     icon: "Users",
-    path: "/admin/citizens",
+    path: "/admin/user-management",
   },
-  {
-    label: "Manage Categories",
-    icon: "FolderOpen",
-    path: "/admin/categories",
-  },
+
   {
     label: "Report Generation",
     icon: "BarChart3",

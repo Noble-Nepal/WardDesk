@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import TechnicianManagementDashboard from "./pages/admin/TechnicianManagementDashboard";
 //Technician Pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
+import UserManagementDashboard from "./pages/admin/UserManagementDashboard";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
           path="technician-management"
           element={<TechnicianManagementDashboard />}
         />
+        <Route path="user-management" element={<UserManagementDashboard />} />
       </Route>
 
       {/* -------- TECHNICIAN ROUTES -------- */}

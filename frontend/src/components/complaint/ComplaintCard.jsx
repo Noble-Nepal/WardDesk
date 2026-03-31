@@ -27,8 +27,8 @@ const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
             upvoteCount={complaint.upvoteCount}
             downvoteCount={complaint.downvoteCount}
             netVotes={complaint.netVotes}
-            userVote={userVote}
-            direction="vertical"
+            userVote={complaint.userVote}
+            direction="horizontal"
           />
         </div>
 
@@ -60,7 +60,7 @@ const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
           </div>
 
           {/* Title */}
-          <h3 className="text-lg sm:text-xl text-gray-900 font-medium mb-2 break-words">
+          <h3 className="text-lg sm:text-xl text-gray-900 font-medium mb-2 wrap-break-word">
             {complaint.title}
           </h3>
 
@@ -105,7 +105,7 @@ const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
 
         {/* Image — desktop only */}
         {photoUrl && (
-          <div className="order-4 sm:order-3 hidden sm:block flex-shrink-0">
+          <div className="order-4 sm:order-3 hidden sm:block shrink-0">
             <img
               src={photoUrl}
               alt={complaint.title}

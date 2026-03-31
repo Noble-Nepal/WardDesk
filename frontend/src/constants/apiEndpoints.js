@@ -30,4 +30,9 @@ export const API_ENDPOINTS = {
   // Assignment
   ASSIGN_COMPLAINT: "/assignment",
   GET_UNASSIGNED_COMPLAINTS: "/assignment/unassigned-complaints",
+
+  GET_ALL_CITIZENS: "/admin/citizens",
+  GET_CITIZEN_BY_ID: (id) => `/admin/citizens/${id}`,
+  UPDATE_USER_ROLE: (userId) => `/admin/users/${userId}/role`,
+  DELETE_CITIZEN: (id) => `/admin/citizens/${id}`,
 };
