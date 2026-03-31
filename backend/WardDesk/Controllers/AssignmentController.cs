@@ -63,5 +63,11 @@ namespace WardDesk.Controllers
                 throw new UnauthorizedAccessException("Invalid token");
             return Guid.Parse(userIdClaim);
         }
+        [HttpGet("unassigned-complaints")]
+        public async Task<ActionResult<List<UnassignedComplaintDTO>>> GetUnassignedComplaints()
+        {
+            var complaints = await _assignmentService.GetUnassignedComplaintsAsync();
+            return Ok(complaints);
+        }
     }
 }

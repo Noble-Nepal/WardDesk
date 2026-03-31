@@ -99,5 +99,28 @@ namespace WardDesk.Service
                 Remarks = a.Remarks
             }).ToList();
         }
+        public async Task<List<UnassignedComplaintDTO>> GetUnassignedComplaintsAsync()
+        {
+            return await _context.Complaints
+                .Include(c => c.Category)
+                .Include(c => c.Citizen)
+                .Include(c => c.Photos)
+                .Include(c => c.Status)
+                .Where(c => !_context.Assignments.Any(a => a.ComplaintId == c.ComplaintId))
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new UnassignedComplaintDTO
+                {
+                    ComplaintId = c.ComplaintId,
+                    Title = c.Title,
+                    Category = c.Category != null ? c.Category.CategoryName : null,
+                    Priority = c.PriorityLevel,
+                    Ward = c.WardNumber.ToString(),
+                    Status = c.Status != null ? c.Status.StatusName : null,
+                    SubmittedDate = c.CreatedAt,
+                    CitizenName = c.Citizen != null ? c.Citizen.FullName : null,
+                    Photo = c.Photos != null ? c.Photos.Select(p => p.PhotoUrl).FirstOrDefault() : null
+                })
+                .ToListAsync();
+        }
     }
 }
