@@ -1,75 +1,98 @@
-import React from "react";
+import React, { useRef } from "react";
+import { FiCamera, FiCheckCircle } from "react-icons/fi";
 
-export default function ProfileCard({ profile }) {
-  if (!profile) return null;
+export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
+  const fileInputRef = useRef(null);
+
+  const initials = profile.fullName
+    ?.split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="flex flex-col md:flex-row items-center md:items-start bg-white rounded-lg shadow p-6 mb-6">
-      <div className="flex items-center flex-col md:border-r md:pr-8 md:mr-8">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center text-center">
+      {/* Avatar */}
+      <div className="relative mb-3">
         {profile.profilePhotoUrl ? (
           <img
             src={profile.profilePhotoUrl}
             alt={profile.fullName}
-            className="w-24 h-24 rounded-full object-cover border border-gray-200 mb-2"
+            className="w-20 h-20 rounded-full object-cover"
           />
         ) : (
-          <div className="w-24 h-24 rounded-full flex items-center justify-center bg-blue-100 text-3xl font-semibold mb-2">
-            {profile.fullName
-              ?.split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
+          <div className="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-semibold">
+            {initials}
           </div>
         )}
-        <div className="text-lg font-semibold text-gray-800">
-          {profile.fullName}
-        </div>
-        <span className="text-sm text-gray-500">{profile.role}</span>
-        <div
-          className={`mt-2 inline-block px-2 py-0.5 rounded ${
-            profile.isVerified
-              ? "bg-green-100 text-green-800"
-              : "bg-yellow-100 text-yellow-800"
-          } text-xs font-medium`}
+        <label
+          className="absolute bottom-0 right-0 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:bg-gray-50 transition"
+          title="Change photo"
         >
-          {profile.isVerified ? "Verified" : "Pending"}
-        </div>
+          <FiCamera className="w-4 h-4 text-gray-500" />
+          <input
+            id="photo-upload-card"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={onPhotoSelect}
+            ref={fileInputRef}
+            disabled={uploading}
+          />
+        </label>
+        {uploading && (
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-xs text-gray-500 animate-pulse bg-white rounded px-2 py-0.5 border">
+            <span>Uploading...</span>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 md:mt-0 flex-1 w-full md:w-auto">
-        <div className="grid md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <div>
-            <span className="text-gray-400">Email:</span>
-            <div className="text-gray-700">{profile.email}</div>
-          </div>
-          <div>
-            <span className="text-gray-400">Phone:</span>
-            <div className="text-gray-700">{profile.phoneNumber}</div>
-          </div>
-          <div>
-            <span className="text-gray-400">Address:</span>
-            <div className="text-gray-700">{profile.address}</div>
-          </div>
-          <div>
-            <span className="text-gray-400">Ward Number:</span>
-            <div className="text-gray-700">{profile.wardNumber}</div>
-          </div>
-          <div>
-            <span className="text-gray-400">Member Since:</span>
-            <div className="text-gray-700">
-              {profile.createdAt
-                ? new Date(profile.createdAt).toLocaleDateString()
-                : "—"}
-            </div>
-          </div>
-          <div>
-            <span className="text-gray-400">Status:</span>
-            <div className="text-gray-700">
-              {profile.isActive ? "Active" : "Inactive"}
-            </div>
-          </div>
+      <p className="text-base font-semibold text-gray-900">
+        {profile.fullName}
+      </p>
+      <p className="text-sm text-gray-500 mb-2">
+        {profile.role || "Citizen Account"}
+      </p>
+      <span
+        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          profile.isVerified
+            ? "bg-green-50 text-green-700 border border-green-200"
+            : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+        }`}
+      >
+        {profile.isVerified && <FiCheckCircle className="w-3 h-3" />}
+        {profile.isVerified ? "Verified" : "Pending"}
+      </span>
+
+      <div className="w-full border-t border-gray-100 my-4" />
+
+      <div className="w-full space-y-2 text-sm text-left">
+        <div className="flex justify-between">
+          <span className="text-gray-500">Member Since</span>
+          <span className="font-medium text-gray-800">
+            {profile.createdAt
+              ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  year: "numeric",
+                })
+              : "—"}
+          </span>
         </div>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Account Status</span>
+          <span
+            className={`font-medium ${profile.isActive ? "text-green-600" : "text-gray-400"}`}
+          >
+            {profile.isActive ? "Active" : "Inactive"}
+          </span>
+        </div>
+        {profile.userId && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">User ID</span>
+            <span className="font-medium text-gray-800">{profile.userId}</span>
+          </div>
+        )}
       </div>
     </div>
   );

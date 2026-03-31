@@ -7,11 +7,16 @@ export default function DangerZoneSection() {
   const [deleting, setDeleting] = useState(false);
 
   const handleDeactivate = async () => {
+    if (
+      !window.confirm(
+        "Temporarily disable your account? You can reactivate it later.",
+      )
+    )
+      return;
     setDeactivating(true);
     try {
       await deactivateMyAccount();
       toast.success("Account deactivated.");
-      // Optionally log out user
     } catch {
       toast.error("Failed to deactivate account.");
     }
@@ -21,7 +26,7 @@ export default function DangerZoneSection() {
   const handleDelete = async () => {
     if (
       !window.confirm(
-        "Are you sure you want to delete your account? This action is irreversible.",
+        "Permanently delete your account and all associated data? This cannot be undone.",
       )
     )
       return;
@@ -29,39 +34,58 @@ export default function DangerZoneSection() {
     try {
       await deleteMyAccount();
       toast.success("Account deleted.");
-      // Optionally log out user and redirect
     } catch {
       toast.error("Failed to delete account.");
     }
     setDeleting(false);
   };
 
+  const dangerBtn =
+    "ml-4 px-4 py-1.5 text-sm font-medium rounded-lg transition bg-white text-red-600 border border-red-300 hover:bg-red-600 hover:text-white hover:border-red-600 disabled:opacity-50";
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6 border-t-4 border-red-200">
-      <h2 className="text-lg font-bold text-red-700 mb-2">Danger Zone</h2>
-      <div className="mb-4">
-        <button
-          onClick={handleDeactivate}
-          disabled={deactivating}
-          className="Button bg-yellow-100 text-yellow-800 border border-yellow-300 hover:bg-yellow-200 mr-2"
-        >
-          {deactivating ? "Deactivating..." : "Deactivate Account"}
-        </button>
-        <span className="text-sm text-gray-500 ml-1">
-          — Temporarily disable your account.
-        </span>
+    <div className="bg-white rounded-xl border border-red-200 shadow-sm">
+      <div className="px-6 pt-6 pb-4 border-b border-red-100">
+        <h2 className="text-base font-semibold text-red-600">Danger Zone</h2>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Irreversible actions that affect your account
+        </p>
       </div>
-      <div>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="Button bg-red-100 text-red-800 border border-red-300 hover:bg-red-200"
-        >
-          {deleting ? "Deleting..." : "Delete Account"}
-        </button>
-        <span className="text-sm text-gray-500 ml-1">
-          — Remove your account and data forever.
-        </span>
+      <div className="p-6 space-y-3">
+        {/* Deactivate row */}
+        <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-gray-900">
+              Deactivate Account
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Temporarily disable your account. You can reactivate it later.
+            </p>
+          </div>
+          <button
+            onClick={handleDeactivate}
+            disabled={deactivating}
+            className={dangerBtn}
+          >
+            {deactivating ? "Deactivating..." : "Deactivate"}
+          </button>
+        </div>
+        {/* Delete row */}
+        <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Delete Account</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Permanently delete your account and all associated data. This
+              cannot be undone.
+            </p>
+          </div>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className={dangerBtn}
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
       </div>
     </div>
   );
