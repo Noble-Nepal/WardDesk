@@ -8,6 +8,7 @@ using Scalar.AspNetCore;
 using System.Text;
 using WardDesk.Database;
 using WardDesk.Service;
+using WardDesk.Services;
 
 namespace WardDesk
 {
@@ -55,6 +56,7 @@ namespace WardDesk
 
             builder.Services.AddScoped<AssignmentService>();
             builder.Services.AddScoped<AnalyticsService>();
+            builder.Services.AddScoped<AdminService>();
 
             builder.Services.AddCors(options =>
             {
