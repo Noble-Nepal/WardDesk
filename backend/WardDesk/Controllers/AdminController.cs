@@ -202,8 +202,32 @@ namespace WardDesk.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "User deleted from system and Firebase." });
         }
-       
-       
+        // GET: api/admin/citizens
+        [HttpGet("citizens")]
+        public async Task<ActionResult> GetCitizens()
+        {
+            var citizens = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role != null && u.Role.RoleName.ToLower() == "citizen")
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.FullName,
+                    u.Email,
+                    u.PhoneNumber,
+                    u.Address,
+                    u.WardNumber,
+                    Role = u.Role.RoleName,
+                    u.IsActive,
+                    u.IsVerified,
+                    u.CreatedAt,
+                    u.UpdatedAt
+                })
+                .ToListAsync();
+
+            return Ok(citizens);
+        }
+
     }
 
 }
