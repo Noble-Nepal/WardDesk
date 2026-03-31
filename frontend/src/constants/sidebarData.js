@@ -17,7 +17,7 @@ export const citizenNavItems = [
   {
     label: "Profile Settings",
     icon: "Settings",
-    path: "/citizen/profile",
+    path: "/citizen/profile-settings",
   },
 ];
 

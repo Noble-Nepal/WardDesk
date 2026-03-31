@@ -31,8 +31,18 @@ export const API_ENDPOINTS = {
   ASSIGN_COMPLAINT: "/assignment",
   GET_UNASSIGNED_COMPLAINTS: "/assignment/unassigned-complaints",
 
+  //Admin cide user management
   GET_ALL_CITIZENS: "/admin/citizens",
   GET_CITIZEN_BY_ID: (id) => `/admin/citizens/${id}`,
   UPDATE_USER_ROLE: (userId) => `/admin/users/${userId}/role`,
   DELETE_CITIZEN: (id) => `/admin/citizens/${id}`,
+
+  // Profile settings api portion
+  PROFILE: {
+    ME: "/profile/me",
+    UPDATE: "/profile/update",
+    CHANGE_PW: "/profile/change-password",
+    DEACTIVATE: "/profile/deactivate-account",
+    DELETE: "/profile/delete-account",
+  },
 };
