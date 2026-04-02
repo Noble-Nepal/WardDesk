@@ -48,6 +48,9 @@ export default function ReportIssue() {
   const [priority, setPriority] = useState(DEFAULT_PRIORITY);
   const [emailUpdates, setEmailUpdates] = useState(true);
 
+  // map re-mount guard
+  const [mapKey, setMapKey] = useState(0);
+
   // ─── UI State ───
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,7 +63,6 @@ export default function ReportIssue() {
     message: "",
   });
 
-  // ─── Fetch Categories ───
   useEffect(() => {
     setCategoriesLoading(true);
     getComplaintCategories()
@@ -69,7 +71,6 @@ export default function ReportIssue() {
       .finally(() => setCategoriesLoading(false));
   }, []);
 
-  // ─── Fetch Impact Stats ───
   useEffect(() => {
     if (citizenId) {
       getImpactStats(citizenId)
@@ -78,7 +79,13 @@ export default function ReportIssue() {
     }
   }, [citizenId]);
 
-  // ─── Reset Form ───
+  // hard map cleanup when modal opens
+  useEffect(() => {
+    if (submittedComplaint) {
+      setMapKey((k) => k + 1);
+    }
+  }, [submittedComplaint]);
+
   const resetForm = () => {
     setTitle("");
     setCategoryId("");
@@ -91,15 +98,16 @@ export default function ReportIssue() {
     setEmailUpdates(true);
     setError("");
     setSubmittedComplaint(null);
+    setMapKey((k) => k + 1);
   };
 
-  // ─── Submit ───
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !categoryId || !description || !ward || !latlng) {
       setError(VALIDATION_MESSAGES.requiredFields);
       return;
     }
+
     setLoading(true);
     setError("");
 
@@ -122,7 +130,15 @@ export default function ReportIssue() {
       };
 
       const response = await createComplaint(payload);
-      setSubmittedComplaint(response.data);
+
+      // clear map first
+      setLatLng(null);
+      setMapKey((k) => k + 1);
+
+      // then open success modal
+      setTimeout(() => {
+        setSubmittedComplaint(response.data);
+      }, 0);
 
       toast.custom(
         (t) => (
@@ -144,7 +160,6 @@ export default function ReportIssue() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* ─── HEADER ─── */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
@@ -162,17 +177,13 @@ export default function ReportIssue() {
         </div>
       </div>
 
-      {/* ─── PAGE GRID ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        {/* ─── MAIN FORM ─── */}
         <form className="lg:col-span-2 space-y-6" onSubmit={handleSubmit}>
-          {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="mb-6 pb-3 border-b-2 border-red-500 w-full">
               <h2 className="text-xl text-gray-900">{LABELS.basicInfo}</h2>
             </div>
             <div className="space-y-4">
-              {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Issue Title *
@@ -187,7 +198,6 @@ export default function ReportIssue() {
                 />
               </div>
 
-              {/* Category */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Category *
@@ -210,28 +220,8 @@ export default function ReportIssue() {
                     </option>
                   ))}
                 </select>
-                {categories.length > 0 && (
-                  <div className="flex gap-2 mt-2 text-xs flex-wrap items-center">
-                    <span className="text-gray-500">Common categories:</span>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.categoryId}
-                        type="button"
-                        className={`px-3 py-1 rounded-full border ${
-                          cat.categoryId === categoryId
-                            ? "bg-red-100 border-red-400 text-red-700"
-                            : "bg-slate-100 border-gray-200 text-slate-700"
-                        } hover:bg-slate-200 transition-colors`}
-                        onClick={() => setCategoryId(cat.categoryId)}
-                      >
-                        {cat.categoryName}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Description *
@@ -244,20 +234,15 @@ export default function ReportIssue() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
-                <div className="text-xs text-gray-500 text-right mt-1">
-                  {description.length} / {DESCRIPTION_MAX_LENGTH}
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Location Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-6">
               {LABELS.locationInfo}
             </h2>
             <div className="space-y-4">
-              {/* Ward */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Ward Number *
@@ -279,13 +264,20 @@ export default function ReportIssue() {
                 </select>
               </div>
 
-              {/* Map */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Pick Location on Map *
                 </label>
                 <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                  <NepalMapPicker value={latlng} onChange={setLatLng} />
+                  {!submittedComplaint ? (
+                    <NepalMapPicker
+                      key={mapKey}
+                      value={latlng}
+                      onChange={setLatLng}
+                    />
+                  ) : (
+                    <div className="h-[300px]" />
+                  )}
                   <div className="text-gray-500 text-sm text-center mt-2">
                     {latlng
                       ? `Selected: (${latlng[0].toFixed(6)}, ${latlng[1].toFixed(6)})`
@@ -294,7 +286,6 @@ export default function ReportIssue() {
                 </div>
               </div>
 
-              {/* Address */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Address
@@ -310,7 +301,6 @@ export default function ReportIssue() {
             </div>
           </div>
 
-          {/* Upload Photos */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl text-gray-900 mb-2">
               {LABELS.uploadPhotos}
@@ -328,64 +318,6 @@ export default function ReportIssue() {
             />
           </div>
 
-          {/* Priority Level */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl text-gray-900 mb-2">
-              {LABELS.priorityLevel}
-            </h2>
-            <div className="text-sm text-gray-600 mb-6">
-              Select the urgency level for this issue
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {PRIORITY_OPTIONS.map((opt) => {
-                const isSelected = priority === opt.value;
-                return (
-                  <div
-                    key={opt.value}
-                    onClick={() => setPriority(opt.value)}
-                    className={`flex items-start space-x-3 p-4 rounded-lg border-2 ${
-                      isSelected ? opt.selectedClass : "border-gray-200"
-                    } hover:border-gray-300 transition-all cursor-pointer`}
-                  >
-                    <input
-                      type="radio"
-                      name="priority"
-                      checked={isSelected}
-                      onChange={() => setPriority(opt.value)}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <label className="cursor-pointer flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${opt.dot}`} />
-                        {opt.label}
-                      </label>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {opt.description}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Contact Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl text-gray-900 mb-6">
-              {LABELS.contactPreferences}
-            </h2>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailUpdates}
-                onChange={(e) => setEmailUpdates(e.target.checked)}
-                className="w-4 h-4 rounded accent-blue-600"
-              />
-              <span>Send me email updates about this issue</span>
-            </label>
-          </div>
-
-          {/* Form Actions */}
           <div className="border-t border-gray-200 bg-white rounded-lg shadow-sm p-6 flex gap-4 justify-end">
             <button
               type="button"
@@ -408,9 +340,7 @@ export default function ReportIssue() {
           {error && <div className="text-red-500 mt-2">{error}</div>}
         </form>
 
-        {/* ─── SIDEBAR ─── */}
         <aside className="lg:col-span-1 sticky top-24 space-y-6">
-          {/* Tips */}
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
             <h3 className="text-lg text-gray-900 mb-4">{LABELS.tipsHeader}</h3>
             <div className="space-y-3 text-sm text-gray-700">
@@ -423,7 +353,6 @@ export default function ReportIssue() {
             </div>
           </div>
 
-          {/* Impact Stats */}
           <ImpactStatsCard
             filed={impactStats.filed}
             resolved={impactStats.resolved}
@@ -433,11 +362,11 @@ export default function ReportIssue() {
         </aside>
       </div>
 
-      {/* ─── COMPLAINT DETAILS MODAL ─── */}
       {submittedComplaint && (
         <ComplaintDetails
           isOpen={!!submittedComplaint}
           onClose={resetForm}
+          variant="success"
           issueData={{
             id: submittedComplaint.trackingId,
             title: submittedComplaint.title,
@@ -452,8 +381,18 @@ export default function ReportIssue() {
             status: submittedComplaint.statusName,
             date: new Date(submittedComplaint.createdAt).toLocaleDateString(
               "en-US",
-              { year: "numeric", month: "short", day: "numeric" },
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              },
             ),
+            photoUrls: submittedComplaint.photoUrls || [],
+            photos: submittedComplaint.photoUrls || [],
+            latitude:
+              submittedComplaint.latitude ?? (latlng ? latlng[0] : null),
+            longitude:
+              submittedComplaint.longitude ?? (latlng ? latlng[1] : null),
           }}
         />
       )}

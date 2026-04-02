@@ -211,8 +211,16 @@ export default function ComplaintDashboard() {
             status: selectedComplaint.statusName,
             date: new Date(selectedComplaint.createdAt).toLocaleDateString(
               "en-US",
-              { year: "numeric", month: "short", day: "numeric" },
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              },
             ),
+            photoUrls: selectedComplaint.photoUrls || [],
+            photos: selectedComplaint.photoUrls || [],
+            latitude: selectedComplaint.latitude,
+            longitude: selectedComplaint.longitude,
           }}
         />
       )}

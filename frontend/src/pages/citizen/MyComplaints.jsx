@@ -9,6 +9,17 @@ const normalize = (s) => s?.toLowerCase() || "";
 const countByStatus = (complaints, test) =>
   complaints.filter((c) => test(normalize(c.statusName))).length;
 
+// map backend status -> tracked timeline states
+const toTrackedStatus = (statusName = "") => {
+  const s = String(statusName).toLowerCase();
+
+  if (s.includes("resolved")) return "resolved";
+  if (s.includes("assigned") || s.includes("progress") || s.includes("work"))
+    return "assigned";
+  if (s.includes("review")) return "reviewing";
+  return "submitted";
+};
+
 // ─── stats card config (DRY) ───
 const STATS = [
   {
@@ -76,7 +87,6 @@ const MyComplaints = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
-  // ─── fetch ───
   useEffect(() => {
     (async () => {
       try {
@@ -91,7 +101,6 @@ const MyComplaints = () => {
     })();
   }, []);
 
-  // ─── derived counts ───
   const counts = useMemo(() => {
     const map = {};
     STATS.forEach(({ key, test }) => {
@@ -104,13 +113,11 @@ const MyComplaints = () => {
     return map;
   }, [complaints]);
 
-  // ─── filtered list ───
   const filtered = useMemo(() => {
-    const f = FILTERS.find((f) => f.key === activeFilter);
+    const f = FILTERS.find((x) => x.key === activeFilter);
     return complaints.filter((c) => f.test(normalize(c.statusName)));
   }, [complaints, activeFilter]);
 
-  // ─── modal helpers ───
   const handleViewDetails = useCallback((complaint) => {
     setSelectedComplaint(complaint);
   }, []);
@@ -132,19 +139,21 @@ const MyComplaints = () => {
       ward: selectedComplaint.wardNumber,
       votes: selectedComplaint.netVotes || 0,
       isVerified: selectedComplaint.isVerified || false,
-      status: selectedComplaint.statusName,
+      status: toTrackedStatus(selectedComplaint.statusName),
+      statusName: selectedComplaint.statusName,
       date: new Date(selectedComplaint.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
       }),
+      photoUrls: selectedComplaint.photoUrls || [],
+      photos: selectedComplaint.photoUrls || [],
+      latitude: selectedComplaint.latitude,
+      longitude: selectedComplaint.longitude,
     };
   }, [selectedComplaint]);
-
-  // ─── render ───
   return (
     <div className="bg-white min-h-screen">
-      {/* ════════ HEADER ════════ */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -157,7 +166,6 @@ const MyComplaints = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        {/* ════════ STATS ════════ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {STATS.map(
             ({
@@ -186,9 +194,7 @@ const MyComplaints = () => {
           )}
         </div>
 
-        {/* ════════ LIST SECTION ════════ */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-          {/* filter tabs */}
           <div className="flex gap-2 sm:gap-3 overflow-x-auto border-b border-gray-200 pb-4 mb-4 sm:mb-6">
             {FILTERS.map(({ key, label }) => (
               <button
@@ -205,7 +211,6 @@ const MyComplaints = () => {
             ))}
           </div>
 
-          {/* states */}
           {loading && (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mr-3" />
@@ -226,7 +231,6 @@ const MyComplaints = () => {
             </div>
           )}
 
-          {/* complaint cards */}
           {!loading && !error && filtered.length > 0 && (
             <div className="space-y-4">
               {filtered.map((complaint) => (
@@ -241,11 +245,11 @@ const MyComplaints = () => {
         </div>
       </div>
 
-      {/* ════════ DETAIL MODAL (reused) ════════ */}
       <ComplaintDetails
         isOpen={!!selectedComplaint}
         onClose={handleClose}
         issueData={issueData}
+        variant="tracked"
       />
     </div>
   );

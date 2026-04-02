@@ -8,6 +8,7 @@ import {
   Calendar,
   Hash,
   Shield,
+  AlertCircle,
 } from "lucide-react";
 
 export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
@@ -17,6 +18,20 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  const roleRaw = profile?.role || profile?.RoleName || "Citizen";
+  const role = String(roleRaw);
+  const roleLower = role.toLowerCase();
+
+  // dynamic booleans from backend (supports both camelCase + PascalCase)
+  const isTechnician = roleLower === "technician";
+  const isVerified = Boolean(
+    profile?.isVerified ?? profile?.IsVerified ?? false,
+  );
+  const isActive = Boolean(profile?.isActive ?? profile?.IsActive ?? false);
+
+  const statusLabel = isActive ? "Active" : "Inactive";
+  const statusClass = isActive ? "text-green-600" : "text-gray-500";
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -53,12 +68,24 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
 
       <div className="pt-14 pb-6 px-6 text-center">
         <h3 className="text-lg text-gray-900">{profile?.fullName || "User"}</h3>
-        <p className="text-sm text-gray-500 mb-3">Citizen Account</p>
+        <p className="text-sm text-gray-500 mb-3">{role} Account</p>
 
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          Verified
-        </span>
+        {isTechnician ? (
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
+              isVerified
+                ? "bg-green-50 text-green-700 border-green-200"
+                : "bg-yellow-50 text-yellow-700 border-yellow-200"
+            }`}
+          >
+            {isVerified ? (
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            ) : (
+              <AlertCircle className="w-3.5 h-3.5" />
+            )}
+            {isVerified ? "Verified" : "Pending Verification"}
+          </span>
+        ) : null}
       </div>
 
       <div className="px-6 pb-6">
@@ -106,7 +133,7 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
             <span className="text-sm text-gray-500">User ID</span>
           </div>
           <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-900">
-            {profile?.userId || "—"}
+            {profile?.userId || profile?.UserId || "—"}
           </span>
         </div>
 
@@ -115,7 +142,9 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
             <Shield className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-500">Status</span>
           </div>
-          <span className="text-sm text-green-600 font-medium">Active</span>
+          <span className={`text-sm font-medium ${statusClass}`}>
+            {statusLabel}
+          </span>
         </div>
       </div>
     </div>

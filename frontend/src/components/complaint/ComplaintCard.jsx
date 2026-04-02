@@ -7,7 +7,8 @@ import {
 } from "../../constants/dashboardConstants";
 
 const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
-  const photoUrl = complaint.photoUrls?.[0];
+  const photoUrl =
+    complaint.photoUrls?.[0] || complaint.imageUrl || complaint.photo;
 
   const timeAgo = () => {
     const diff = Date.now() - new Date(complaint.createdAt).getTime();
