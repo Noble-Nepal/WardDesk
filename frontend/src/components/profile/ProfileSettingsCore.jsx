@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Lock, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-
+import useAuth from "../../hooks/useAuth";
 import {
   fetchMyProfile,
   updateMyProfile,
@@ -40,6 +40,7 @@ const emptyPasswordForm = {
 };
 
 export default function ProfileSettingsCore() {
+  const { setUserProfile } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -214,7 +215,7 @@ export default function ProfileSettingsCore() {
         address: profile.address,
         profilePhotoUrl: uploadedUrl,
       });
-
+      setUserProfile({ profilePhotoUrl: uploadedUrl });
       await loadProfile();
       toast.dismiss(tId);
       toast.custom((t) => (
