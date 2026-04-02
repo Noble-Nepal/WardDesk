@@ -13,7 +13,6 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center text-center">
-      {/* Avatar */}
       <div className="relative mb-3">
         {profile.profilePhotoUrl ? (
           <img
@@ -47,7 +46,6 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
           </div>
         )}
       </div>
-
       <p className="text-base font-semibold text-gray-900">
         {profile.fullName}
       </p>

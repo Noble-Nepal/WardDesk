@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { updateMyProfile } from "../../api/profileApi";
 import { toast } from "react-hot-toast";
 import { FiUser, FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 
 export default function ProfileEditForm({ profile, onProfileUpdated }) {
   const [form, setForm] = useState({
-    fullName: profile.fullName || "",
-    email: profile.email || "",
-    phoneNumber: profile.phoneNumber || "",
-    wardNumber: profile.wardNumber || "",
-    address: profile.address || "",
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    wardNumber: "",
+    address: "",
+    profilePhotoUrl: "",
   });
-  const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        fullName: profile.fullName || "",
+        email: profile.email || "",
+        phoneNumber: profile.phoneNumber || "",
+        wardNumber: profile.wardNumber || "",
+        address: profile.address || "",
+        profilePhotoUrl: profile.profilePhotoUrl || "",
+      });
+    }
+  }, [profile]);
+
+  const [saving, setSaving] = useState(false);
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -66,10 +80,8 @@ export default function ProfileEditForm({ profile, onProfileUpdated }) {
             <input
               name="email"
               value={form.email}
-              onChange={handleChange}
               type="email"
               className={inputClass}
-              placeholder="your@email.com"
               disabled
             />
           </div>

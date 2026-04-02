@@ -17,8 +17,6 @@ export default function ProfileSettingsCore() {
     try {
       const res = await fetchMyProfile();
       setProfile(res.data);
-    } catch {
-      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -29,22 +27,24 @@ export default function ProfileSettingsCore() {
     // eslint-disable-next-line
   }, []);
 
-  // Camera/photo upload handler
   const handlePhotoSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
     toast.loading("Uploading profile photo...");
     try {
-      // 1. Upload to Cloudinary
       const url = await handleImageUpload(file);
-      // 2. Update backend
-      await updateMyProfile({ profilePhotoUrl: url });
-      // 3. Re-fetch profile
+      await updateMyProfile({
+        fullName: profile.fullName,
+        phoneNumber: profile.phoneNumber,
+        wardNumber: profile.wardNumber,
+        address: profile.address,
+        profilePhotoUrl: url,
+      });
       await loadProfile();
       toast.dismiss();
       toast.success("Profile photo updated!");
-    } catch (err) {
+    } catch {
       toast.dismiss();
       toast.error("Failed to upload/update photo.");
     }
