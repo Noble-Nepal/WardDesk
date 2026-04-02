@@ -64,6 +64,6 @@ export const technicianNavItems = [
   {
     label: "Profile Settings",
     icon: "Settings",
-    path: "/technician/profile",
+    path: "/technician/profile-settings",
   },
 ];

@@ -21,6 +21,7 @@ import TechnicianManagementDashboard from "./pages/admin/TechnicianManagementDas
 //Technician Pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 import UserManagementDashboard from "./pages/admin/UserManagementDashboard";
+import TechnicianProfileSettings from "./pages/technician/ProfileSettings";
 
 const App = () => {
   return (
@@ -52,6 +53,10 @@ const App = () => {
       {/* -------- TECHNICIAN ROUTES -------- */}
       <Route path="/technician" element={<TechnicianLayout />}>
         <Route path="dashboard" element={<TechnicianDashboard />} />
+        <Route
+          path="profile-settings"
+          element={<TechnicianProfileSettings />}
+        />
       </Route>
     </Routes>
   );
