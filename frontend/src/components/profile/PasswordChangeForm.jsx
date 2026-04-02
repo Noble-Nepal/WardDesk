@@ -1,48 +1,66 @@
 import React, { useState } from "react";
-import { changeMyPassword } from "../../api/profileApi";
-import { toast } from "react-hot-toast";
-import { FiShield, FiLock } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiLock, FiShield } from "react-icons/fi";
 
-export default function PasswordChangeForm() {
-  const [form, setForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+const PasswordField = ({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  readOnly,
+  visible,
+  onToggle,
+}) => (
+  <div>
+    <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
+      <FiLock className="text-gray-400" size={14} />
+      {label}
+    </label>
+    <div className="relative">
+      <input
+        name={name}
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        className={`w-full px-3 py-2 pr-10 rounded-lg text-sm border outline-none transition ${
+          readOnly
+            ? "bg-gray-100 border-gray-200 text-gray-700"
+            : "bg-white border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        } ${error ? "border-red-500" : ""}`}
+      />
+      <button
+        type="button"
+        onClick={() => onToggle(name)}
+        disabled={readOnly}
+        className="absolute top-1/2 -translate-y-1/2 right-2 w-7 h-7 rounded flex items-center justify-center text-gray-600 disabled:opacity-40"
+      >
+        {visible ? (
+          <FiEyeOff className="w-4 h-4" />
+        ) : (
+          <FiEye className="w-4 h-4" />
+        )}
+      </button>
+    </div>
+    {error ? <p className="text-red-500 text-xs mt-1">{error}</p> : null}
+  </div>
+);
+
+export default function PasswordChangeForm({
+  form,
+  errors,
+  isEditMode,
+  onChange,
+  passwordStrength,
+}) {
+  const [show, setShow] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
   });
-  const [saving, setSaving] = useState(false);
 
-  const handleChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.newPassword !== form.confirmPassword) {
-      toast.error("New passwords do not match.");
-      return;
-    }
-    setSaving(true);
-    try {
-      await changeMyPassword({
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
-      });
-      toast.success("Password updated!");
-      setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch {
-      toast.error("Failed to update password.");
-    }
-    setSaving(false);
-  };
-
-  const requirements = [
-    "At least 8 characters long",
-    "Contains uppercase and lowercase letters",
-    "Contains at least one number",
-    "Contains at least one special character",
-  ];
-
-  const inputClass =
-    "w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition";
+  const onToggle = (name) =>
+    setShow((prev) => ({ ...prev, [name]: !prev[name] }));
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
@@ -50,99 +68,72 @@ export default function PasswordChangeForm() {
         <FiShield className="text-gray-500" size={18} />
         <div>
           <h2 className="text-base font-semibold text-gray-900">
-            Security Settings
+            Change Password
           </h2>
           <p className="text-sm text-gray-500">
-            Manage your password and security preferences
+            Keep your account secure with a strong password
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6">
-        {/* Current Password */}
-        <div className="mb-4">
-          <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-            <FiLock className="text-gray-400" size={14} />
-            Current Password
-          </label>
-          <input
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <PasswordField
+            label="Current Password"
             name="currentPassword"
-            type="password"
             value={form.currentPassword}
-            onChange={handleChange}
-            required
-            placeholder="Enter your current password"
-            className={inputClass}
+            onChange={onChange}
+            error={errors.currentPassword}
+            readOnly={!isEditMode}
+            visible={show.currentPassword}
+            onToggle={onToggle}
+          />
+
+          <div>
+            <PasswordField
+              label="New Password"
+              name="newPassword"
+              value={form.newPassword}
+              onChange={onChange}
+              error={errors.newPassword}
+              readOnly={!isEditMode}
+              visible={show.newPassword}
+              onToggle={onToggle}
+            />
+
+            {isEditMode ? (
+              <div className="mt-2">
+                <div className="grid grid-cols-3 gap-2">
+                  {[1, 2, 3].map((seg) => (
+                    <span
+                      key={seg}
+                      className={`h-2 rounded-full ${
+                        seg <= passwordStrength.score
+                          ? passwordStrength.color
+                          : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {passwordStrength.label}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          <PasswordField
+            label="Confirm New Password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={onChange}
+            error={errors.confirmPassword}
+            readOnly={!isEditMode}
+            visible={show.confirmPassword}
+            onToggle={onToggle}
           />
         </div>
-
-        {/* New + Confirm */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              New Password
-            </label>
-            <input
-              name="newPassword"
-              type="password"
-              value={form.newPassword}
-              onChange={handleChange}
-              required
-              placeholder="Enter new password"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Confirm New Password
-            </label>
-            <input
-              name="confirmPassword"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-              placeholder="Confirm new password"
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        {/* Requirements box */}
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-5">
-          <p className="text-sm font-medium text-blue-800 mb-2">
-            Password requirements:
-          </p>
-          <ul className="space-y-1">
-            {requirements.map((req) => (
-              <li
-                key={req}
-                className="flex items-center gap-2 text-sm text-blue-700"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                {req}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-5 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50 transition"
-          >
-            {saving ? "Updating..." : "Update Password"}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

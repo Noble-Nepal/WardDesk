@@ -1,75 +1,97 @@
-import React, { useRef } from "react";
-import { FiCamera, FiCheckCircle } from "react-icons/fi";
+import React from "react";
+import {
+  Camera,
+  CheckCircle2,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Hash,
+  Shield,
+} from "lucide-react";
 
 export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
-  const fileInputRef = useRef(null);
-
-  const initials = profile.fullName
+  const initials = profile?.fullName
     ?.split(" ")
-    .map((w) => w[0])
+    .map((s) => s[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center text-center">
-      <div className="relative mb-3">
-        {profile.profilePhotoUrl ? (
-          <img
-            src={profile.profilePhotoUrl}
-            alt={profile.fullName}
-            className="w-20 h-20 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-semibold">
-            {initials}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="relative">
+        <div className="h-24 bg-[#2B4AA0]" />
+
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+          <div className="relative w-24 h-24 rounded-full bg-white ring-4 ring-white shadow-lg flex items-center justify-center">
+            {profile?.profilePhotoUrl ? (
+              <img
+                src={profile.profilePhotoUrl}
+                alt={profile.fullName}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-[#2B4AA0] text-2xl font-semibold">
+                {initials || "U"}
+              </span>
+            )}
+
+            <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#2B4AA0] hover:bg-[#1d3570] rounded-full border-2 border-white flex items-center justify-center cursor-pointer transition">
+              <Camera className="w-3.5 h-3.5 text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={onPhotoSelect}
+                className="hidden"
+                disabled={uploading}
+              />
+            </label>
           </div>
-        )}
-        <label
-          className="absolute bottom-0 right-0 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:bg-gray-50 transition"
-          title="Change photo"
-        >
-          <FiCamera className="w-4 h-4 text-gray-500" />
-          <input
-            id="photo-upload-card"
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={onPhotoSelect}
-            ref={fileInputRef}
-            disabled={uploading}
-          />
-        </label>
-        {uploading && (
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-xs text-gray-500 animate-pulse bg-white rounded px-2 py-0.5 border">
-            <span>Uploading...</span>
-          </div>
-        )}
+        </div>
       </div>
-      <p className="text-base font-semibold text-gray-900">
-        {profile.fullName}
-      </p>
-      <p className="text-sm text-gray-500 mb-2">
-        {profile.role || "Citizen Account"}
-      </p>
-      <span
-        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          profile.isVerified
-            ? "bg-green-50 text-green-700 border border-green-200"
-            : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-        }`}
-      >
-        {profile.isVerified && <FiCheckCircle className="w-3 h-3" />}
-        {profile.isVerified ? "Verified" : "Pending"}
-      </span>
 
-      <div className="w-full border-t border-gray-100 my-4" />
+      <div className="pt-14 pb-6 px-6 text-center">
+        <h3 className="text-lg text-gray-900">{profile?.fullName || "User"}</h3>
+        <p className="text-sm text-gray-500 mb-3">Citizen Account</p>
 
-      <div className="w-full space-y-2 text-sm text-left">
-        <div className="flex justify-between">
-          <span className="text-gray-500">Member Since</span>
-          <span className="font-medium text-gray-800">
-            {profile.createdAt
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          Verified
+        </span>
+      </div>
+
+      <div className="px-6 pb-6">
+        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+          <div className="flex items-center gap-2.5">
+            <Mail className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-700 truncate">
+              {profile?.email || "—"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Phone className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-700">
+              {profile?.phoneNumber || "—"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <MapPin className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-700">
+              {profile?.address || "—"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 px-6 py-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-500">Member Since</span>
+          </div>
+          <span className="text-sm text-gray-900">
+            {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
                   month: "short",
                   year: "numeric",
@@ -77,20 +99,24 @@ export default function ProfileCard({ profile, onPhotoSelect, uploading }) {
               : "—"}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">Account Status</span>
-          <span
-            className={`font-medium ${profile.isActive ? "text-green-600" : "text-gray-400"}`}
-          >
-            {profile.isActive ? "Active" : "Inactive"}
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Hash className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-500">User ID</span>
+          </div>
+          <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-900">
+            {profile?.userId || "—"}
           </span>
         </div>
-        {profile.userId && (
-          <div className="flex justify-between">
-            <span className="text-gray-500">User ID</span>
-            <span className="font-medium text-gray-800">{profile.userId}</span>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-500">Status</span>
           </div>
-        )}
+          <span className="text-sm text-green-600 font-medium">Active</span>
+        </div>
       </div>
     </div>
   );
