@@ -99,16 +99,34 @@ namespace WardDesk.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<bool> DeleteAccountAsync(Guid userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null) return false;
 
-            try { await FirebaseAuth.DefaultInstance.DeleteUserAsync(user.FirebaseUid); }
-            catch { }
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(user.FirebaseUid))
+                    await FirebaseAuth.DefaultInstance.DeleteUserAsync(user.FirebaseUid);
+            }
+            catch
+            {
+                // ignore firebase failure
+            }
 
-            _context.Users.Remove(user);
+           
+            user.FullName = "Deleted User";
+            user.Email = $"deleted_{user.UserId:N}@deleted.local";
+            user.PhoneNumber = "0000000000";        
+            user.Address = "Deleted";                
+            user.ProfilePhotoUrl = "";             
+
+          
+            user.WardNumber = 0;
+            user.IsActive = false;
+            user.IsVerified = false;
+            user.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return true;
         }
