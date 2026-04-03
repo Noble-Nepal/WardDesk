@@ -50,6 +50,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    if (loading) return; // prevent double-click multiple requests
     setServerError("");
 
     const isValid = await validate();
@@ -58,7 +61,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await loginUser(email, password);
+      const data = await loginUser(email.trim(), password);
       login(data.accessToken, data.refreshToken);
 
       toast.custom(
@@ -80,29 +83,38 @@ const Login = () => {
         },
       );
 
-      const decoded = jwtDecode(data.accessToken);
-      const role = decoded[ROLE_CLAIM];
+      // smooth transition before route change
+      setTimeout(() => {
+        const decoded = jwtDecode(data.accessToken);
+        const role = decoded[ROLE_CLAIM];
 
-      switch (role) {
-        case "admin":
-          navigate("/admin/dashboard");
-          break;
-        case "technician":
-          navigate("/technician/dashboard");
-          break;
-        case "citizen":
-        default:
-          navigate("/citizen/dashboard");
-          break;
-      }
+        switch (role) {
+          case "admin":
+            navigate("/admin/dashboard");
+            break;
+          case "technician":
+            navigate("/technician/dashboard");
+            break;
+          case "citizen":
+          default:
+            navigate("/citizen/dashboard");
+            break;
+        }
+      }, 450);
     } catch (err) {
       const message =
-        err.response?.data?.message ||
-        err.response?.data ||
-        "Login failed. Please try again.";
-      setServerError(message);
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        "Invalid email or password.";
+
+      setServerError(
+        typeof message === "string"
+          ? message
+          : "Login failed. Please try again.",
+      );
     } finally {
-      setLoading(false);
+      // tiny delay avoids abrupt loading flicker
+      setTimeout(() => setLoading(false), 150);
     }
   };
 
@@ -164,7 +176,10 @@ const Login = () => {
       {/* -------- RIGHT PANEL -------- */}
       <div className="w-full md:w-1/2 flex flex-col bg-white min-h-screen">
         <div className="flex justify-end items-center gap-4 px-8 py-6">
-          <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800">
+          <button
+            type="button"
+            className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          >
             <svg
               width="12"
               height="12"
@@ -199,7 +214,11 @@ const Login = () => {
 
             <ErrorAlert message={serverError} />
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="flex flex-col gap-5"
+            >
               {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
@@ -217,7 +236,7 @@ const Login = () => {
                   }}
                   className={`
                     w-full px-4 py-3 border rounded-lg text-sm text-gray-700 placeholder-gray-400
-                    transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent
+                    transition-colors focus:outline-none focus:ring-2 focus:border-transparent
                     ${
                       errors.email
                         ? "border-red-400 focus:ring-red-400"
@@ -248,7 +267,7 @@ const Login = () => {
                     }}
                     className={`
                       w-full px-4 py-3 pr-12 border rounded-lg text-sm text-gray-700 placeholder-gray-400
-                      transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent
+                      transition-colors focus:outline-none focus:ring-2 focus:border-transparent
                       ${
                         errors.password
                           ? "border-red-400 focus:ring-red-400"
@@ -266,7 +285,7 @@ const Login = () => {
                 )}
               </div>
 
-              {/*  Forgot Password */}
+              {/* Forgot Password */}
               <div className="flex items-center justify-between">
                 <Link
                   to="/reset-password"
@@ -280,13 +299,14 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
                 className={`
                   w-full py-3.5 text-white text-base font-semibold rounded-lg
-                  transition-all duration-200 flex items-center justify-center gap-2
+                  transition-colors flex items-center justify-center gap-2
                   ${
                     loading
                       ? "bg-red-300 cursor-not-allowed"
-                      : "bg-red-500 hover:bg-red-600 active:scale-[0.98]"
+                      : "bg-red-500 hover:bg-red-600"
                   }
                 `}
               >
