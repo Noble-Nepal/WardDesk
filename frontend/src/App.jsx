@@ -7,6 +7,7 @@ import TechnicianLayout from "./layouts/TechnicianLayout";
 //Public Pages
 import Login from "./pages/auth/Login";
 import Registration from "./pages/auth/Registration";
+import ResetPassword from "./pages/auth/ResetPassword";
 import Home from "./pages/Home";
 import TrackComplaint from "./pages/public/TrackComplaint";
 
@@ -31,6 +32,7 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/track/:trackingId" element={<TrackComplaint />} />
       <Route path="/register" element={<Registration />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* -------- CITIZEN ROUTES -------- */}
       <Route path="/citizen" element={<CitizenLayout />}>

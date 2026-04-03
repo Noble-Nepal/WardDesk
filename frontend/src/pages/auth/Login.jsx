@@ -269,7 +269,7 @@ const Login = () => {
               {/*  Forgot Password */}
               <div className="flex items-center justify-between">
                 <Link
-                  to="/forgot-password"
+                  to="/reset-password"
                   className="text-sm text-blue-600 font-medium hover:underline"
                 >
                   Forgot password?
