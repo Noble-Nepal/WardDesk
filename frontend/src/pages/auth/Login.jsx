@@ -128,12 +128,7 @@ const Login = () => {
   return (
     <div className="flex min-h-screen">
       {/* -------- LEFT PANEL -------- */}
-      <div
-        className="hidden md:flex md:w-1/2 flex-col px-10 py-10 text-white"
-        style={{
-          background: "linear-gradient(180deg, #1a237e 0%, #1565c0 100%)",
-        }}
-      >
+      <div className="hidden md:flex md:w-1/2 flex-col px-10 py-10 text-white bg-linear-to-br from-[#2B4AA0] to-[#1a2d6b]">
         <div className="flex items-center gap-2 mb-24">
           <img src="/logo.png" alt="WardDesk" className="h-8" />
           <span className="text-xl font-bold tracking-tight">WardDesk</span>
