@@ -110,8 +110,41 @@ namespace WardDesk.Controllers
                 return StatusCode(500, new { message = "An error occurred during logout", error = ex.Message });
             }
         }
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDTO request)
+        {
+            try
+            {
+                await _authService.ForgotPasswordAsync(request.Email);
+                // Always generic response (don’t leak user existence)
+                return Ok(new { message = "If the email exists, a reset link has been sent." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to process forgot password request", error = ex.Message });
+            }
+        }
 
-       
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO request)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(request.OobCode, request.NewPassword);
+                return Ok(new { message = "Password reset successful. Please login with your new password." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to reset password", error = ex.Message });
+            }
+        }
+
 
 
     }

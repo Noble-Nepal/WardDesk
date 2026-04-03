@@ -276,5 +276,57 @@ namespace WardDesk.Service
             await _context.SaveChangesAsync();
             return refreshToken;
         }
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var firebaseApiKey = _configuration["Firebase:WebApiKey"];
+            if (string.IsNullOrEmpty(firebaseApiKey))
+                throw new InvalidOperationException("Firebase API Key not configured");
+
+            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={firebaseApiKey}";
+            var client = _httpClientFactory.CreateClient();
+
+
+            var continueUrl = _configuration["Frontend:ResetPasswordUrl"];
+            // e.g. https://yourdomain.com/reset-password
+
+            var payload = new
+            {
+                requestType = "PASSWORD_RESET",
+                email,
+                continueUrl
+            };
+
+            var response = await client.PostAsJsonAsync(url, payload);
+
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                // swallow on purpose to avoid account enumeration
+                return;
+            }
+        }
+
+        public async Task ResetPasswordAsync(string oobCode, string newPassword)
+        {
+            var firebaseApiKey = _configuration["Firebase:WebApiKey"];
+            if (string.IsNullOrEmpty(firebaseApiKey))
+                throw new InvalidOperationException("Firebase API Key not configured");
+
+            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key={firebaseApiKey}";
+            var client = _httpClientFactory.CreateClient();
+
+            var payload = new
+            {
+                oobCode,
+                newPassword
+            };
+
+            var response = await client.PostAsJsonAsync(url, payload);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new InvalidOperationException("Invalid or expired reset link.");
+            }
+        }
     }
 }
