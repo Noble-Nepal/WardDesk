@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const CTABanner = () => {
   return (
-    <section className="bg-[#1a237e] py-20 px-6">
+    <section className="bg-linear-to-br from-[#2B4AA0] to-[#1a2d6b] py-24 px-6">
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Ready to Get Started?
