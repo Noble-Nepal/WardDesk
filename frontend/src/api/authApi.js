@@ -24,3 +24,17 @@ export const refreshToken = async (refreshToken) => {
   });
   return response.data;
 };
+export const forgotPassword = async (email) => {
+  const response = await axiosInstance.post(API_ENDPOINTS.FORGOT_PASSWORD, {
+    email,
+  });
+  return response.data;
+};
+
+export const resetPassword = async ({ oobCode, newPassword }) => {
+  const response = await axiosInstance.post(API_ENDPOINTS.RESET_PASSWORD, {
+    oobCode,
+    newPassword,
+  });
+  return response.data;
+};
