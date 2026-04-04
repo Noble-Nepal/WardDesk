@@ -1,17 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import SuccessToast from "../../components/ui/SuccessToast";
+
 import HeaderSection from "../../components/adminTechnicians/HeaderSection";
 import StatsOverviewCard from "../../components/adminTechnicians/StatsOverviewCard";
 import FilterSearchBar from "../../components/adminTechnicians/FilterSearchBar";
 import TechnicianTable from "../../components/adminTechnicians/TechnicianTable";
 import TechnicianDetailsModal from "../../components/adminTechnicians/TechnicianDetailsModel";
 import AssignComplaintModal from "../../components/adminTechnicians/AssignComplaintModal";
+import SuccessToast from "../../components/ui/SuccessToast";
+import ErrorAlert from "../../components/ui/ErrorAlert";
+
 import {
   getPendingTechnicians,
   getAllTechnicians,
   verifyTechnician,
   rejectTechnician,
+  updateTechnicianAccountStatus, // NEW: make sure this exists in api file
   getUnassignedComplaints,
   assignComplaint,
 } from "../../api/adminTechnicianApi";
@@ -21,142 +25,131 @@ export default function TechnicianManagementDashboard() {
   const [search, setSearch] = useState("");
   const [pending, setPending] = useState([]);
   const [all, setAll] = useState([]);
-  const [stats, setStats] = useState([0, 0, 0, 0]);
-  const [loading, setLoading] = useState(false);
-
-  const [assignOpen, setAssignOpen] = useState(false);
   const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
+  const [pageError, setPageError] = useState("");
 
-  // API load logic
+  const showSuccessToast = (title, message) => {
+    toast.custom(
+      (t) => (
+        <div className={t.visible ? "animate-enter" : "animate-leave"}>
+          <SuccessToast title={title} message={message} />
+        </div>
+      ),
+      {
+        duration: 3500,
+        style: {
+          padding: "0",
+          background: "transparent",
+          boxShadow: "none",
+        },
+      },
+    );
+  };
+
   const loadData = async () => {
     setLoading(true);
-    const [pendingTechs, allTechs] = await Promise.all([
-      getPendingTechnicians(),
-      getAllTechnicians(),
-    ]);
-    setPending(pendingTechs);
-    setAll(allTechs);
-    const comps = assignOpen ? complaints : await getUnassignedComplaints();
-    setComplaints(comps);
-    setStats([
-      pendingTechs.length,
-      allTechs.filter((t) => t.status === "active").length,
-      allTechs.length,
-      comps.length,
-    ]);
-    setLoading(false);
+    setPageError("");
+    try {
+      const [pendingTechs, allTechs, unassigned] = await Promise.all([
+        getPendingTechnicians(),
+        getAllTechnicians(),
+        getUnassignedComplaints(),
+      ]);
+
+      setPending(Array.isArray(pendingTechs) ? pendingTechs : []);
+      setAll(Array.isArray(allTechs) ? allTechs : []);
+      setComplaints(Array.isArray(unassigned) ? unassigned : []);
+    } catch (err) {
+      console.error("Failed to load technician data:", err);
+      setPageError(
+        "Failed to load technician data. Please refresh and try again.",
+      );
+      setPending([]);
+      setAll([]);
+      setComplaints([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line
   }, []);
 
-  const searchFilter = (t) =>
-    [t.fullName, t.email, String(t.wardNumber), t.address].some((val) =>
-      val?.toLowerCase().includes(search.toLowerCase()),
-    );
-  const visibleTechs = (tab === "Pending" ? pending : all).filter(searchFilter);
+  const stats = useMemo(() => {
+    const activeCount = all.filter((t) => t?.isActive).length;
+    return [pending.length, activeCount, all.length, complaints.length];
+  }, [pending, all, complaints]);
 
+  const visibleTechs = useMemo(() => {
+    const base = tab === "Pending" ? pending : all;
+    const q = search.trim().toLowerCase();
+    if (!q) return base;
+
+    return base.filter((t) =>
+      [t?.fullName, t?.email, String(t?.wardNumber ?? ""), t?.address]
+        .map((v) => String(v ?? "").toLowerCase())
+        .some((v) => v.includes(q)),
+    );
+  }, [tab, pending, all, search]);
+
+  // Modal handles loading/success/error; parent just performs actions
   const handleApprove = async (tech) => {
-    try {
-      await verifyTechnician(tech.userId || tech.UserId);
-      toast.custom(
-        (t) => (
-          <div className={t.visible ? "animate-enter" : "animate-leave"}>
-            <SuccessToast
-              title="Technician Approved!"
-              message={`${tech.fullName || "Technician"} is now verified.`}
-            />
-          </div>
-        ),
-        {
-          duration: 3500,
-          style: {
-            padding: "0",
-            background: "transparent",
-            boxShadow: "none",
-          },
-        },
-      );
-      setSelectedTechnician(null);
-      await loadData();
-    } catch {
-      toast.error("Failed to approve technician");
-    }
+    const userId = tech?.userId || tech?.UserId;
+    if (!userId) throw new Error("Invalid technician id");
+
+    await verifyTechnician(userId);
+    await loadData();
   };
 
   const handleReject = async (tech) => {
-    try {
-      await rejectTechnician(tech.userId || tech.UserId);
-      toast.custom(
-        (t) => (
-          <div className={t.visible ? "animate-enter" : "animate-leave"}>
-            <SuccessToast
-              title="Technician Rejected"
-              message={`${tech.fullName || "Technician"} was removed.`}
-            />
-          </div>
-        ),
-        {
-          duration: 3500,
-          style: {
-            padding: "0",
-            background: "transparent",
-            boxShadow: "none",
-          },
-        },
-      );
-      setSelectedTechnician(null);
-      await loadData();
-    } catch {
-      toast.error("Failed to reject technician");
-    }
+    const userId = tech?.userId || tech?.UserId;
+    if (!userId) throw new Error("Invalid technician id");
+
+    await rejectTechnician(userId);
+    await loadData();
   };
 
-  const handleOpenAssign = async () => {
-    const comps = await getUnassignedComplaints();
-    setComplaints(comps);
-    setAssignOpen(true);
-    setStats((s) => [s[0], s[1], s[2], comps.length]);
+  const handleUpdateAccountStatus = async (tech, isActive) => {
+    const userId = tech?.userId || tech?.UserId;
+    if (!userId) throw new Error("Invalid technician id");
+
+    // reason optional; backend usually supports nullable reason
+    await updateTechnicianAccountStatus(userId, isActive, "");
+    await loadData();
   };
 
   const handleAssign = async (complaint, technician) => {
     try {
       await assignComplaint({
-        complaintId: complaint.complaintId,
-        technicianId: technician.userId || technician.UserId,
+        complaintId: complaint?.complaintId,
+        technicianId: technician?.userId || technician?.UserId,
       });
-      toast.custom(
-        (t) => (
-          <div className={t.visible ? "animate-enter" : "animate-leave"}>
-            <SuccessToast
-              title="Complaint Assigned!"
-              message={`Complaint assigned to ${technician.fullName || "Technician"} successfully.`}
-            />
-          </div>
-        ),
-        {
-          duration: 3500,
-          style: {
-            padding: "0",
-            background: "transparent",
-            boxShadow: "none",
-          },
-        },
+
+      showSuccessToast(
+        "Complaint Assigned",
+        `Task assignment email sent to ${technician?.email || "technician"} in their Gmail.`,
       );
+
       await loadData();
-    } catch {
-      toast.error("Failed to assign complaint");
+    } catch (err) {
+      console.error("Assign failed:", err);
+      setPageError("Failed to assign complaint. Please try again.");
     }
   };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
-      <HeaderSection onAssign={handleOpenAssign} />
+      <HeaderSection onAssign={() => setAssignOpen(true)} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        <ErrorAlert message={pageError} />
+
         <StatsOverviewCard stats={stats} />
+
         <FilterSearchBar
           tab={tab}
           setTab={setTab}
@@ -164,26 +157,26 @@ export default function TechnicianManagementDashboard() {
           search={search}
           setSearch={setSearch}
         />
+
         {loading ? (
           <div className="text-center py-12 text-gray-500">Loading...</div>
         ) : (
           <TechnicianTable
             technicians={visibleTechs}
             onView={setSelectedTechnician}
-            onApprove={handleApprove}
-            onReject={handleReject}
           />
         )}
       </div>
-      {/* Technician details modal */}
+
       <TechnicianDetailsModal
         open={!!selectedTechnician}
         technician={selectedTechnician}
         onClose={() => setSelectedTechnician(null)}
         onApprove={handleApprove}
         onReject={handleReject}
+        onUpdateAccountStatus={handleUpdateAccountStatus} // NEW
       />
-      {/* Complaint assignment modal */}
+
       <AssignComplaintModal
         open={assignOpen}
         onClose={() => setAssignOpen(false)}

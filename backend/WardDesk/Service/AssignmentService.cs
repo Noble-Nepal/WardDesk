@@ -23,6 +23,8 @@ namespace WardDesk.Service
             var complaint = await _context.Complaints.FirstOrDefaultAsync(c => c.ComplaintId == request.ComplaintId);
             if (complaint == null)
                 throw new InvalidOperationException("Complaint not found.");
+            if (!complaint.IsVerified)
+                throw new InvalidOperationException("Only verified complaints can be assigned.");
 
             var existing = await _context.Assignments.FirstOrDefaultAsync(a => a.ComplaintId == request.ComplaintId);
             if (existing != null)
@@ -106,7 +108,9 @@ namespace WardDesk.Service
                 .Include(c => c.Citizen)
                 .Include(c => c.Photos)
                 .Include(c => c.Status)
-                .Where(c => !_context.Assignments.Any(a => a.ComplaintId == c.ComplaintId))
+                .Where(c =>
+    c.IsVerified &&
+    !_context.Assignments.Any(a => a.ComplaintId == c.ComplaintId))
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => new UnassignedComplaintDTO
                 {
@@ -114,10 +118,12 @@ namespace WardDesk.Service
                     Title = c.Title,
                     Category = c.Category != null ? c.Category.CategoryName : null,
                     Priority = c.PriorityLevel,
-                    Ward = c.WardNumber.ToString(),
+                    
                     Status = c.Status != null ? c.Status.StatusName : null,
                     SubmittedDate = c.CreatedAt,
                     CitizenName = c.Citizen != null ? c.Citizen.FullName : null,
+                    WardNumber = c.WardNumber,
+                    Address = c.LocationAddress,
                     Photo = c.Photos != null ? c.Photos.Select(p => p.PhotoUrl).FirstOrDefault() : null
                 })
                 .ToListAsync();

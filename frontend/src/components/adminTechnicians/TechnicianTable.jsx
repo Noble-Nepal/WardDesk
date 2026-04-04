@@ -1,109 +1,89 @@
+import { Eye, Users, MapPin, Phone } from "lucide-react";
+import StatusBadge from "./StatusBadge";
 import {
-  Phone,
-  MapPin,
-  Clock,
-  CheckCircle,
-  UserCheck,
-  UserX,
-  Eye,
-  Users,
-  AlertCircle,
-  Home,
-} from "lucide-react";
+  ACCOUNT_STATUS_META,
+  VERIFICATION_META,
+  ASSIGNMENT_META,
+} from "../../constants/adminTechnicianConstants";
 
-function statusBadge(status) {
-  if (!status)
-    return {
-      color: "bg-gray-100 text-gray-400 border border-gray-200",
-      icon: <AlertCircle className="w-3 h-3 mr-1" />,
-      label: "Unknown",
-    };
-  const s = status.toLowerCase();
-  if (s === "pending")
-    return {
-      color: "bg-orange-100 text-orange-700 border border-orange-200",
-      icon: <Clock className="w-3 h-3 mr-1" />,
-      label: "Pending",
-    };
-  if (s === "active")
-    return {
-      color: "bg-green-100 text-green-700 border border-green-200",
-      icon: <CheckCircle className="w-3 h-3 mr-1" />,
-      label: "Active",
-    };
-  if (s === "verified")
-    return {
-      color: "bg-blue-100 text-blue-700 border border-blue-200",
-      icon: <CheckCircle className="w-3 h-3 mr-1" />,
-      label: "Verified",
-    };
-  return {
-    color: "bg-gray-100 text-gray-400 border border-gray-200",
-    icon: <AlertCircle className="w-3 h-3 mr-1" />,
-    label: status,
-  };
-}
+const getInitials = (name = "") =>
+  name
+    .split(" ")
+    .map((w) => w?.[0] || "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "T";
 
-export default function TechnicianTable({
-  technicians,
-  onView,
-  onApprove,
-  onReject,
-}) {
-  if (!technicians || !technicians.length)
+export default function TechnicianTable({ technicians, onView }) {
+  if (!technicians?.length) {
     return (
-      <div className="flex flex-col items-center py-12">
-        <Users className="w-12 h-12 text-gray-300 mb-4" />
-        <div className="text-sm text-gray-500">No technicians found</div>
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm py-12 flex flex-col items-center">
+        <Users className="w-12 h-12 text-gray-300 mb-3" />
+        <p className="text-sm text-gray-500">No technicians found</p>
       </div>
     );
+  }
 
   return (
-    <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-x-auto">
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
       <table className="min-w-full">
         <thead className="bg-gray-50">
           <tr>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-left">
+            <th className="text-left text-xs text-gray-600 px-4 py-3">
               Technician
             </th>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-left">
-              Contact
-            </th>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-left">
+            <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
               Ward
             </th>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-left">
-              Status
-            </th>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-left">
+            <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
               Address
             </th>
-            <th className="py-3 px-4 text-xs font-medium text-gray-600 text-right">
+            <th className="hidden sm:table-cell text-left text-xs text-gray-600 px-4 py-3">
+              Contact
+            </th>
+            <th className="text-left text-xs text-gray-600 px-4 py-3">
+              Account Status
+            </th>
+            <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
+              Verification
+            </th>
+            <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
+              Assignment
+            </th>
+            <th className="text-right text-xs text-gray-600 px-4 py-3">
               Actions
             </th>
           </tr>
         </thead>
+
         <tbody>
           {technicians.map((tech) => {
-            const initials = (tech.fullName || tech.email || "T")
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase();
-
-            const badge = statusBadge(tech.status || tech.Status);
+            const accountKey = String(tech.accountStatus || "").toLowerCase();
+            const verificationKey = String(
+              tech.verificationStatus || "",
+            ).toLowerCase();
+            const assignmentKey = String(
+              tech.assignmentStatus || "",
+            ).toLowerCase();
 
             return (
               <tr
-                key={tech.userId || tech.UserId}
-                className="border-b border-gray-100 hover:bg-gray-50"
+                key={tech.userId}
+                className="border-b last:border-0 border-gray-100 hover:bg-gray-50"
               >
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-3 min-w-45">
-                    <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 text-sm font-semibold flex items-center justify-center uppercase">
-                      {initials}
-                    </div>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    {tech.profilePhotoUrl ? (
+                      <img
+                        src={tech.profilePhotoUrl}
+                        alt={tech.fullName}
+                        className="w-9 h-9 rounded-full object-cover border border-blue-200"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 text-[#2B4AA0] text-sm font-semibold flex items-center justify-center">
+                        {getInitials(tech.fullName)}
+                      </div>
+                    )}
                     <div>
                       <div className="text-sm text-gray-900 font-medium">
                         {tech.fullName}
@@ -112,64 +92,61 @@ export default function TechnicianTable({
                     </div>
                   </div>
                 </td>
-                <td className="py-3 px-4 min-w-31.25 align-middle">
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-xs text-gray-600">
-                      {tech.phoneNumber || "-"}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-3 px-4 min-w-22.5 align-middle">
-                  <div className="flex items-center gap-1.5">
+
+                <td className="hidden md:table-cell px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-700">
                     <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-xs text-gray-900">
-                      {tech.wardNumber || "-"}
-                    </span>
+                    Ward {tech.wardNumber ?? "-"}
                   </div>
                 </td>
-                <td className="py-3 px-4 min-w-30 align-middle">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}
-                  >
-                    {badge.icon}
-                    {badge.label}
-                  </span>
+
+                <td className="hidden lg:table-cell px-4 py-3 text-xs text-gray-700">
+                  {tech.address || "-"}
                 </td>
-                <td className="py-3 px-4 min-w-45 align-middle">
-                  <div className="flex items-center gap-1.5">
-                    <Home className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-xs text-gray-900">
-                      {tech.address || "-"}
-                    </span>
+
+                <td className="hidden sm:table-cell px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
+                    {tech.phoneNumber || "-"}
                   </div>
                 </td>
-                <td className="py-3 px-4 text-right min-w-62.5 align-middle">
-                  <div className="flex items-center gap-2 justify-end">
+
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    meta={
+                      ACCOUNT_STATUS_META[accountKey] ||
+                      ACCOUNT_STATUS_META.inactive
+                    }
+                  />
+                </td>
+
+                <td className="hidden md:table-cell px-4 py-3">
+                  <StatusBadge
+                    meta={
+                      VERIFICATION_META[verificationKey] ||
+                      VERIFICATION_META.unverified
+                    }
+                  />
+                </td>
+
+                <td className="hidden lg:table-cell px-4 py-3">
+                  <StatusBadge
+                    meta={
+                      ASSIGNMENT_META[assignmentKey] ||
+                      ASSIGNMENT_META.unassigned
+                    }
+                  />
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-2">
                     <button
-                      className="h-8 px-3 flex items-center border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
                       onClick={() => onView?.(tech)}
-                      tabIndex={0}
+                      className="h-8 px-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 inline-flex items-center text-sm"
                     >
-                      <Eye className="w-3.5 h-3.5 mr-1" /> View
+                      <Eye className="w-3.5 h-3.5 mr-1" />
+                      View
                     </button>
-                    {(tech.status === "pending" ||
-                      tech.Status === "pending") && (
-                      <>
-                        <button
-                          className="h-8 px-3 flex items-center bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm"
-                          onClick={() => onApprove?.(tech)}
-                        >
-                          <UserCheck className="w-3.5 h-3.5 mr-1" /> Approve
-                        </button>
-                        <button
-                          className="h-8 px-3 flex items-center bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm"
-                          onClick={() => onReject?.(tech)}
-                        >
-                          <UserX className="w-3.5 h-3.5 mr-1" /> Reject
-                        </button>
-                      </>
-                    )}
                   </div>
                 </td>
               </tr>

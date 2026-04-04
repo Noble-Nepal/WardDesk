@@ -1,51 +1,40 @@
 import axiosInstance from "./axiosInstance";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
+import {
+  normalizeTechnician,
+  normalizeComplaint,
+} from "../utils/adminTechnicianMappers";
 
-// Get pending technicians
 export async function getPendingTechnicians() {
   const res = await axiosInstance.get(API_ENDPOINTS.PENDING_TECHNICIANS);
-  return res.data.map((t) => ({ ...t, status: "pending" }));
+  return (res.data || []).map(normalizeTechnician);
 }
 
-// Get all users and filter for technicians
 export async function getAllTechnicians() {
   const res = await axiosInstance.get(API_ENDPOINTS.GET_ALL_USERS);
-  return res.data
-    .filter(
-      (u) =>
-        u.role?.toLowerCase() === "technician" ||
-        u.RoleName?.toLowerCase() === "technician",
-    )
-    .map((t) => ({
-      ...t,
-      status:
-        t.isVerified || t.IsVerified
-          ? t.isActive || t.IsActive
-            ? "active"
-            : "verified"
-          : "pending",
-      tasksDone: t.completedAssignments || t.CompletedAssignments || 0,
-      tasksActive: t.ongoingAssignments || t.OngoingAssignments || 0,
-    }));
+  return (res.data || [])
+    .filter((u) => (u.role ?? u.Role ?? "").toLowerCase() === "technician")
+    .map(normalizeTechnician);
 }
 
-export function verifyTechnician(userId) {
-  return axiosInstance.put(`${API_ENDPOINTS.VERIFY_TECHNICIAN}/${userId}`);
-}
+export const verifyTechnician = (userId) =>
+  axiosInstance.put(`${API_ENDPOINTS.VERIFY_TECHNICIAN}/${userId}`);
 
-export function rejectTechnician(userId) {
-  return axiosInstance.put(`${API_ENDPOINTS.REJECT_TECHNICIAN}/${userId}`);
-}
+export const rejectTechnician = (userId) =>
+  axiosInstance.put(`${API_ENDPOINTS.REJECT_TECHNICIAN}/${userId}`);
 
 export async function getUnassignedComplaints() {
   const res = await axiosInstance.get(API_ENDPOINTS.GET_UNASSIGNED_COMPLAINTS);
-  return res.data;
+  return (res.data || []).map(normalizeComplaint);
 }
-
-export function assignComplaint({ complaintId, technicianId, remarks }) {
-  return axiosInstance.post(API_ENDPOINTS.ASSIGN_COMPLAINT, {
+export const updateTechnicianAccountStatus = (userId, isActive, reason = "") =>
+  axiosInstance.put(`/admin/users/${userId}/account-status`, {
+    isActive,
+    reason,
+  });
+export const assignComplaint = ({ complaintId, technicianId, remarks = "" }) =>
+  axiosInstance.post(API_ENDPOINTS.ASSIGN_COMPLAINT, {
     complaintId,
     technicianId,
     remarks,
   });
-}

@@ -1,313 +1,474 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   XCircle,
   ClipboardList,
   MapPin,
-  AlertCircle,
   Phone,
+  Hash,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
+import SuccessToast from "../ui/SuccessToast";
+import ErrorAlert from "../ui/ErrorAlert";
+import StatusBadge from "./StatusBadge";
+import { ACCOUNT_STATUS_META } from "../../constants/adminTechnicianConstants";
 
-// Priority badge colors per your palette
-function getPriorityColor(priority) {
-  switch (priority) {
-    case "high":
-      return "bg-red-100 text-red-700";
-    case "medium":
-      return "bg-orange-100 text-orange-700";
-    case "low":
-      return "bg-blue-100 text-blue-700";
-    default:
-      return "bg-gray-100 text-gray-700";
+const formatDate = (v) => {
+  const d = new Date(v);
+  return Number.isNaN(d.getTime())
+    ? "-"
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+const getPriorityCls = (p) => {
+  const k = String(p || "").toLowerCase();
+  if (k === "high" || k === "urgent") return "bg-red-100 text-red-700";
+  if (k === "medium") return "bg-orange-100 text-orange-700";
+  return "bg-blue-100 text-blue-700";
+};
+
+const initials = (name = "") =>
+  name
+    .split(" ")
+    .map((w) => w?.[0] || "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "T";
+
+function VerificationBadge({ status }) {
+  const key = String(status || "").toLowerCase();
+
+  if (key === "verified") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700 border border-emerald-200">
+        <CheckCircle className="w-3 h-3" /> Verified
+      </span>
+    );
   }
-}
-// "Mar 14, 2026"
-function formatDate(dt) {
-  const d = new Date(dt);
-  if (isNaN(d.getTime())) return dt;
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-function getInitials(fullName) {
+
+  if (key === "rejected") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-red-100 text-red-700 border border-red-200">
+        <XCircle className="w-3 h-3" /> Rejected
+      </span>
+    );
+  }
+
   return (
-    fullName
-      ?.split(" ")
-      .map((w) => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "T"
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-orange-100 text-orange-700 border border-orange-200">
+      <Clock className="w-3 h-3" /> Unverified
+    </span>
   );
 }
 
 export default function AssignComplaintModal({
   open,
   onClose,
-  unassignedComplaints,
-  technicians,
+  unassignedComplaints = [],
+  technicians = [],
   handleAssign,
 }) {
-  const modalRef = useRef();
+  const ref = useRef();
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [submittingTechId, setSubmittingTechId] = useState(null);
+  const [banner, setBanner] = useState(null);
 
-  // Close modal on esc
+  useEffect(() => {
+    if (!open) {
+      setSelectedComplaint(null);
+      setSubmittingTechId(null);
+      setBanner(null);
+      return;
+    }
+
+    const esc = (e) => e.key === "Escape" && !submittingTechId && onClose?.();
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [open, onClose, submittingTechId]);
+
   useEffect(() => {
     if (!open) return;
-    const handleKey = (e) => e.key === "Escape" && handleClose();
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [open]);
 
-  // Click outside to close
-  useEffect(() => {
-    if (!open) return;
     const clickOutside = (e) => {
-      if (modalRef.current && !modalRef.current.contains(e.target))
-        handleClose();
+      if (ref.current && !ref.current.contains(e.target) && !submittingTechId) {
+        onClose?.();
+      }
     };
+
     document.addEventListener("mousedown", clickOutside);
     return () => document.removeEventListener("mousedown", clickOutside);
-  }, [open]);
+  }, [open, onClose, submittingTechId]);
 
-  function handleClose() {
-    setSelectedComplaint(null);
-    onClose && onClose();
-  }
-
-  // Only show verified/active techs
-  const filteredTechs = technicians.filter((t) =>
-    ["verified", "active"].includes(String(t.status).toLowerCase()),
+  const complaintList = useMemo(
+    () => unassignedComplaints || [],
+    [unassignedComplaints],
   );
+
+  const availableTechs = useMemo(() => {
+    if (!selectedComplaint) return [];
+
+    return technicians.filter((t) => {
+      const account = String(t.accountStatus || "").toLowerCase();
+      const verify = String(t.verificationStatus || "").toLowerCase();
+      const assignment = String(t.assignmentStatus || "").toLowerCase();
+
+      return (
+        (account === "active" || account === "verified") &&
+        verify === "verified" &&
+        assignment !== "busy"
+      );
+    });
+  }, [technicians, selectedComplaint]);
 
   if (!open) return null;
 
+  const onAssignClick = async (tech) => {
+    if (!selectedComplaint || !handleAssign || submittingTechId) return;
+
+    setBanner(null);
+    setSubmittingTechId(tech.userId);
+
+    try {
+      await handleAssign(selectedComplaint, tech);
+      setBanner({
+        type: "success",
+        title: "Complaint Assigned",
+        message: `Complaint ${selectedComplaint.complaintId} assigned to ${tech.fullName}. Assignment email sent to ${tech.email} in their Gmail.`,
+      });
+      setSelectedComplaint(null);
+      setTimeout(() => onClose?.(), 900);
+    } catch {
+      setBanner({
+        type: "error",
+        message: "Failed to assign complaint. Please try again.",
+      });
+    } finally {
+      setSubmittingTechId(null);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/50 p-4 flex items-center justify-center">
       <div
-        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl bg-white rounded-lg flex flex-col"
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
+        ref={ref}
+        className="w-full max-w-6xl h-[90vh] bg-white rounded-xl shadow-xl flex flex-col overflow-hidden"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 p-5 bg-white gap-4">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-start justify-between">
           <div>
-            <div className="text-lg text-gray-900 font-bold">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">
               Assign Complaint to Technician
-            </div>
-            <div className="text-xs text-gray-600 mt-0.5">
+            </h2>
+            <p className="text-xs text-gray-600">
               Select a complaint and assign it to an available technician
-            </div>
+            </p>
           </div>
           <button
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            type="button"
-            aria-label="Close dialog"
-            onClick={handleClose}
+            onClick={onClose}
+            disabled={!!submittingTechId}
+            className="text-gray-500 hover:text-gray-700 disabled:opacity-40"
           >
             <XCircle className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-5 flex flex-col space-y-5 flex-1 min-h-120">
-          {/* Step 1: Unassigned Complaints */}
-          <div>
-            <div className="text-base text-gray-900 font-bold mb-3">
-              Unassigned Complaints
+        <div className="px-6 pt-4">
+          {submittingTechId && (
+            <div className="mb-3 flex items-center gap-2 text-sm bg-blue-50 border border-blue-200 text-blue-700 rounded-lg px-3 py-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Assigning complaint and sending email notification...
             </div>
-            <div className="space-y-3 mb-5">
-              {Array.isArray(unassignedComplaints) &&
-              unassignedComplaints.length > 0 ? (
-                unassignedComplaints.map((complaint) => {
-                  const isSel =
-                    selectedComplaint &&
-                    complaint.complaintId === selectedComplaint.complaintId;
-                  return (
-                    <div
-                      key={complaint.complaintId}
-                      className={`flex items-start rounded-lg overflow-hidden transition-all
-                        cursor-pointer border
-                        ${
-                          isSel
-                            ? "border-red-500 bg-red-50"
-                            : "border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300"
+          )}
+          {banner?.type === "success" && (
+            <div className="mb-3">
+              <SuccessToast title={banner.title} message={banner.message} />
+            </div>
+          )}
+          {banner?.type === "error" && <ErrorAlert message={banner.message} />}
+        </div>
+
+        <div className="px-6 pb-6 flex-1 min-h-0">
+          <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="border border-gray-200 rounded-xl flex flex-col min-h-0">
+              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-gray-100 flex items-center justify-between">
+                <div className="text-base font-semibold text-[#2B4AA0]">
+                  Unassigned Complaints
+                </div>
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  {complaintList.length}
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {complaintList.length ? (
+                  complaintList.map((c) => {
+                    const selected =
+                      selectedComplaint?.complaintId === c.complaintId;
+
+                    return (
+                      <button
+                        key={c.complaintId}
+                        onClick={() => setSelectedComplaint(c)}
+                        className={`w-full text-left border rounded-lg overflow-hidden cursor-pointer transition-all ${
+                          selected
+                            ? "border-[#2B4AA0] bg-blue-50 ring-1 ring-[#2B4AA0]"
+                            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                         }`}
-                      onClick={() => setSelectedComplaint(complaint)}
-                      tabIndex={0}
-                    >
-                      {/* Left Photo */}
-                      {complaint.photo && (
-                        <div className="shrink-0 w-32 h-32">
-                          <img
-                            src={complaint.photo}
-                            alt={complaint.title}
-                            className="w-full h-full object-cover block"
-                          />
+                      >
+                        <div className="flex">
+                          <div className="flex-1 p-3 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <Hash className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                Complaint ID:
+                              </span>
+                              <span className="text-xs text-gray-900">
+                                {c.complaintId}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs ${getPriorityCls(c.priority)}`}
+                              >
+                                {String(c.priority || "low")}
+                              </span>
+
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-orange-50 text-orange-700 border border-orange-200">
+                                <Clock className="w-2.5 h-2.5" />
+                                {String(c.status || "pending")}
+                              </span>
+
+                              <VerificationBadge status="verified" />
+                            </div>
+
+                            <div className="text-sm text-gray-900 mb-1.5 truncate">
+                              {c.title || c.category || "Untitled complaint"}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-1">
+                              <span className="inline-flex items-center gap-1">
+                                <ClipboardList className="w-3 h-3" />
+                                {c.category || "-"}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                Ward {c.wardNumber}
+                              </span>
+                            </div>
+
+                            <div className="text-xs text-gray-500 flex items-center gap-1 mb-1.5 truncate">
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              <span className="truncate">{c.address}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs text-gray-400 pt-1.5 border-t border-gray-100">
+                              <span>By {c.citizenName}</span>
+                              <span>{formatDate(c.submittedDate)}</span>
+                            </div>
+                          </div>
+
+                          {c.photo && (
+                            <div className="shrink-0 w-28">
+                              <img
+                                src={c.photo}
+                                alt={c.title || "Complaint"}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {/* Details */}
-                      <div className="flex-1 min-w-0 p-4 flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          {/* ID/priority */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs font-medium text-gray-900">
-                              {complaint.complaintId}
-                            </span>
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-xs capitalize font-normal ${getPriorityColor(
-                                complaint.priority,
-                              )}`}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-12 text-sm text-gray-500">
+                    <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                    No unassigned complaints
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded-xl flex flex-col min-h-0">
+              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-gray-100 flex items-center justify-between">
+                <div className="text-base font-semibold text-[#2B4AA0]">
+                  Available Technicians
+                </div>
+                {selectedComplaint && (
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                    Ward {selectedComplaint.wardNumber}
+                  </span>
+                )}
+              </div>
+
+              {!selectedComplaint ? (
+                <div className="flex-1 flex items-center justify-center p-4">
+                  <div className="text-center py-12">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full mx-auto flex items-center justify-center mb-2">
+                      <ClipboardList className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Select a complaint first
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Choose a complaint from the left to see matching
+                      technicians
+                    </div>
+                  </div>
+                </div>
+              ) : availableTechs.length ? (
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {availableTechs.map((t) => {
+                    const isAssigning = submittingTechId === t.userId;
+
+                    return (
+                      <div
+                        key={t.userId}
+                        className="border border-gray-200 rounded-lg p-4 hover:border-blue-200 hover:bg-blue-50/50 transition-all"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="shrink-0">
+                            {t.profilePhotoUrl ? (
+                              <img
+                                src={t.profilePhotoUrl}
+                                alt={t.fullName}
+                                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#2B4AA0] text-sm border border-blue-200">
+                                {initials(t.fullName)}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <div className="text-sm text-gray-900 truncate">
+                                {t.fullName}
+                              </div>
+                              <VerificationBadge
+                                status={t.verificationStatus}
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <Hash className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                User ID:
+                              </span>
+                              <span className="text-xs text-gray-900">
+                                {t.userId}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-500 mb-2">
+                              <div className="inline-flex items-center gap-1 min-w-0">
+                                <MapPin className="w-3 h-3 shrink-0" />
+                                <span className="truncate">
+                                  Ward {t.wardNumber ?? "-"}
+                                </span>
+                              </div>
+                              <div className="inline-flex items-center gap-1 min-w-0">
+                                <Phone className="w-3 h-3 shrink-0" />
+                                <span className="truncate">
+                                  {t.phoneNumber || "-"}
+                                </span>
+                              </div>
+                              <div className="col-span-2 inline-flex items-center gap-1 min-w-0">
+                                <MapPin className="w-3 h-3 shrink-0" />
+                                <span className="truncate">
+                                  {t.address || "-"}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <StatusBadge
+                                meta={
+                                  ACCOUNT_STATUS_META[
+                                    String(t.accountStatus || "").toLowerCase()
+                                  ] || ACCOUNT_STATUS_META.inactive
+                                }
+                              />
+                              {typeof t.completedTasks !== "undefined" && (
+                                <span className="text-xs text-gray-500">
+                                  {Number(t.completedTasks || 0)} done /{" "}
+                                  {Number(t.activeTasks || 0)} active
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 pt-1">
+                            <button
+                              disabled={!!submittingTechId}
+                              onClick={() => onAssignClick(t)}
+                              className={`px-4 h-8 rounded-lg text-sm text-white inline-flex items-center ${
+                                submittingTechId
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : "bg-[#2B4AA0] hover:bg-[#1d3570]"
+                              }`}
                             >
-                              {complaint.priority}
-                            </span>
-                          </div>
-                          {/* Title */}
-                          <div className="text-base text-gray-900 font-medium mb-2">
-                            {complaint.title}
-                          </div>
-                          {/* Category / Ward */}
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 mb-2">
-                            <span className="flex items-center gap-1">
-                              <ClipboardList className="w-3.5 h-3.5" />
-                              {complaint.category}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
-                              {complaint.ward}
-                            </span>
-                          </div>
-                          {/* Citizen / Date */}
-                          <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                            <span>By {complaint.citizenName || "Unknown"}</span>
-                            <span>&#8226;</span>
-                            <span>{formatDate(complaint.submittedDate)}</span>
+                              {isAssigning ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                  Assigning
+                                </>
+                              ) : (
+                                "Assign"
+                              )}
+                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               ) : (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <div className="text-sm text-gray-500">
-                    No unassigned complaints found.
+                <div className="flex-1 flex items-center justify-center p-4">
+                  <div className="text-center">
+                    <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                    <div className="text-sm text-gray-500">
+                      No available technicians
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Try selecting a different complaint
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Step 2: Available Technicians */}
-          <div>
-            <div className="text-base text-gray-900 font-bold mb-4">
-              Available Technicians
-            </div>
+        <div className="shrink-0 border-t border-gray-200 p-4 bg-gray-50 flex items-center justify-between">
+          <div className="text-xs text-gray-500">
             {selectedComplaint ? (
-              filteredTechs.length > 0 ? (
-                <div className="space-y-3">
-                  {filteredTechs.map((tech) => (
-                    <div
-                      key={tech.userId}
-                      className="flex items-center rounded-lg border border-gray-200 p-4 transition-all gap-4 hover:border-blue-300 hover:bg-blue-50"
-                    >
-                      {/* Technician photo or avatar */}
-                      <div className="shrink-0">
-                        {tech.profilePhoto ? (
-                          <img
-                            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                            src={tech.profilePhoto}
-                            alt={tech.fullName}
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-lg font-medium border-2 border-blue-200">
-                            {getInitials(tech.fullName)}
-                          </div>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-base font-medium text-gray-900">
-                            {tech.fullName}
-                          </span>
-                          {String(tech.status).toLowerCase() === "active" && (
-                            <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs ml-2">
-                              Active
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
-                          {/* ---- LOCATION (address + ward) ---- */}
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            {tech.address
-                              ? `${tech.address} • Ward ${tech.ward ?? tech.wardNumber ?? ""}`
-                              : `Ward ${tech.ward ?? tech.wardNumber ?? ""}`}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3.5 h-3.5" />
-                            {tech.phone}
-                          </span>
-                        </div>
-                        {tech.specialization && (
-                          <div className="text-xs text-gray-500">
-                            Specialization: {tech.specialization}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-4 mt-2 text-xs">
-                          {typeof tech.completedTasks === "number" && (
-                            <span>
-                              <span className="text-green-700 font-medium">
-                                {tech.completedTasks}
-                              </span>
-                              <span className="text-gray-500"> completed</span>
-                            </span>
-                          )}
-                          {typeof tech.assignedTasks === "number" && (
-                            <span>
-                              <span className="text-blue-700 font-medium">
-                                {tech.assignedTasks}
-                              </span>
-                              <span className="text-gray-500"> active</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {/* Assign button */}
-                      <div className="shrink-0 flex items-center">
-                        <button
-                          className="px-6 h-10 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
-                          onClick={async () => {
-                            await handleAssign(selectedComplaint, tech);
-                            handleClose();
-                          }}
-                        >
-                          Assign
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <div className="text-sm text-gray-500">
-                    No available technicians
-                  </div>
-                </div>
-              )
+              <>
+                Selected:{" "}
+                <span className="text-gray-900">
+                  {selectedComplaint.complaintId}
+                </span>{" "}
+                - {selectedComplaint.title || "-"}
+              </>
             ) : (
-              <div className="text-center py-8">
-                <ClipboardList className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                <div className="text-sm text-gray-500">
-                  Select a complaint to see available technicians
-                </div>
-              </div>
+              "No complaint selected"
             )}
           </div>
+          <button
+            onClick={() => {
+              if (submittingTechId) return;
+              setSelectedComplaint(null);
+              setBanner(null);
+              onClose?.();
+            }}
+            disabled={!!submittingTechId}
+            className="h-9 px-4 rounded-lg bg-red-600 text-white hover:bg-red-700 text-sm disabled:opacity-50"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>

@@ -41,8 +41,10 @@ namespace WardDesk.Services
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
                     ProfilePhotoUrl = u.ProfilePhotoUrl, 
+                    CitizenshipPhotoUrl=u.CitizenshipPhotoUrl,
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
+
                 })
                 .ToListAsync();
         }
@@ -92,9 +94,25 @@ namespace WardDesk.Services
                     Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
-                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
+                    ProfilePhotoUrl = u.ProfilePhotoUrl,
+                    CitizenshipPhotoUrl = u.CitizenshipPhotoUrl,
                     CreatedAt = u.CreatedAt,
-                    UpdatedAt = u.UpdatedAt
+                    UpdatedAt = u.UpdatedAt,
+
+                    
+                             OngoingAssignments = _context.Assignments.Count(a =>
+                a.TechnicianId == u.UserId &&
+                a.Complaint != null &&
+                a.Complaint.Status != null &&
+                a.Complaint.Status.StatusName.ToLower() != "resolved" &&
+                a.Complaint.Status.StatusName.ToLower() != "closed"),
+
+            CompletedAssignments = _context.Assignments.Count(a =>
+                a.TechnicianId == u.UserId &&
+                a.Complaint != null &&
+                a.Complaint.Status != null &&
+                (a.Complaint.Status.StatusName.ToLower() == "resolved" ||
+                 a.Complaint.Status.StatusName.ToLower() == "closed"))
                 })
                 .ToListAsync();
         }
@@ -115,9 +133,17 @@ namespace WardDesk.Services
                     Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
-                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
+                    ProfilePhotoUrl = u.ProfilePhotoUrl,
+                    CitizenshipPhotoUrl = u.CitizenshipPhotoUrl,
                     CreatedAt = u.CreatedAt,
-                    UpdatedAt = u.UpdatedAt
+                    UpdatedAt = u.UpdatedAt,
+
+                    OngoingAssignments = _context.Assignments.Count(a => a.TechnicianId == u.UserId),
+                    CompletedAssignments = _context.Assignments.Count(a =>
+                        a.TechnicianId == u.UserId &&
+                        a.Complaint != null &&
+                        a.Complaint.Status != null &&
+                        a.Complaint.Status.StatusName.ToLower() == "resolved")
                 })
                 .FirstOrDefaultAsync();
         }

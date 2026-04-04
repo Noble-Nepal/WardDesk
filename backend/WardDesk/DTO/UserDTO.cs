@@ -14,5 +14,8 @@
         public string? ProfilePhotoUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string? CitizenshipPhotoUrl { get; set; }
+        public int OngoingAssignments { get; set; }
+        public int CompletedAssignments { get; set; }
     }
 }

@@ -8,5 +8,7 @@
     public string? Status { get; set; }
     public DateTime SubmittedDate { get; set; }
     public string? CitizenName { get; set; }   
-    public string? Photo { get; set; }        
+    public string? Photo { get; set; }
+    public int? WardNumber { get; set; }
+    public string? Address { get; set; }
 }
