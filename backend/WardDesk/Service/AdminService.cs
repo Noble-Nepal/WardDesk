@@ -99,8 +99,17 @@ namespace WardDesk.Services
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt,
 
-                    
-                    OngoingAssignments = _context.Assignments.Count(a => a.TechnicianId == u.UserId),
+
+                    OngoingAssignments = _context.Assignments.Count(a =>
+     a.TechnicianId == u.UserId &&
+     a.Complaint != null &&
+     a.Complaint.Status != null &&
+     (
+         a.Complaint.Status.StatusName.ToLower() == "assigned" ||
+         a.Complaint.Status.StatusName.ToLower() == "in_progress" ||
+         a.Complaint.Status.StatusName.ToLower() == "completed"
+     )
+),
                     CompletedAssignments = _context.Assignments.Count(a =>
                         a.TechnicianId == u.UserId &&
                         a.Complaint != null &&
@@ -131,7 +140,16 @@ namespace WardDesk.Services
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt,
 
-                    OngoingAssignments = _context.Assignments.Count(a => a.TechnicianId == u.UserId),
+                    OngoingAssignments = _context.Assignments.Count(a =>
+                        a.TechnicianId == u.UserId &&
+                        a.Complaint != null &&
+                        a.Complaint.Status != null &&
+                        (
+                            a.Complaint.Status.StatusName.ToLower() == "assigned" ||
+                            a.Complaint.Status.StatusName.ToLower() == "in_progress" ||
+                            a.Complaint.Status.StatusName.ToLower() == "completed"
+                        )
+),
                     CompletedAssignments = _context.Assignments.Count(a =>
                         a.TechnicianId == u.UserId &&
                         a.Complaint != null &&
