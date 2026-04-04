@@ -39,9 +39,9 @@ export const adminNavItems = [
   },
 
   {
-    label: "Report Generation",
+    label: "Manage Complaints",
     icon: "BarChart3",
-    path: "/admin/generate-report",
+    path: "/admin/complaint-management",
   },
 ];
 
