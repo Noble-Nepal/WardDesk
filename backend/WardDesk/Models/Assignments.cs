@@ -25,6 +25,17 @@ namespace WardDesk.Models
 
         [Column("remarks")]
         public string? Remarks { get; set; }
+        [Column("work_status")]
+        public string WorkStatus { get; set; } = "assigned";
+        [Column("started_at")]
+        public DateTime? StartedAt { get; set; }
+
+        [Column("completed_at")]
+        public DateTime? CompletedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
 
         // Navigation Properties
         [ForeignKey("ComplaintId")]

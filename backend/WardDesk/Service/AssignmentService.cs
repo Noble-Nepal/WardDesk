@@ -1,21 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WardDesk.Database;
 using WardDesk.DTO;
 using WardDesk.Models;
+using WardDesk.Service.Notifications;
 
 namespace WardDesk.Service
 {
     public class AssignmentService
     {
         private readonly AppDbContext _context;
-
-        public AssignmentService(AppDbContext context)
+        private readonly IUserNotificationService _userNotificationService;
+        public AssignmentService(AppDbContext context, IUserNotificationService userNotificationService)
         {
             _context = context;
+            _userNotificationService = userNotificationService;
         }
 
         public async Task<AssignmentDTO> AssignComplaintAsync(Guid adminId, CreateAssignmentDTO request)
@@ -43,7 +45,9 @@ namespace WardDesk.Service
                 TechnicianId = request.TechnicianId,
                 AssignedBy = adminId,
                 AssignedAt = DateTime.UtcNow,
-                Remarks = request.Remarks
+                Remarks = request.Remarks,
+                WorkStatus = "assigned",
+                UpdatedAt = DateTime.UtcNow
             };
 
             _context.Assignments.Add(assignment);
@@ -52,9 +56,19 @@ namespace WardDesk.Service
             if (assignedStatus == null) throw new InvalidOperationException("Assigned status not found.");
             complaint.StatusId = assignedStatus.StatusId;
             complaint.UpdatedAt = DateTime.UtcNow;
-
+            tech.AssignmentStatus = "busy";
+            tech.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
-
+            if (!string.IsNullOrWhiteSpace(tech.Email))
+            {
+                await _userNotificationService.SendComplaintAssignedEmailAsync(
+                    tech.Email,
+                    tech.FullName ?? "Technician",
+                    complaint.ComplaintId,
+                    complaint.Title ?? "Untitled complaint",
+                    request.Remarks
+                );
+            }
             return await GetAssignmentDTOByIdOrThrow(assignment.AssignmentId);
         }
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WardDesk.Database;
@@ -11,9 +12,11 @@ using WardDesk.Database;
 namespace WardDesk.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404071958_AddAssignmentWorkTracking")]
+    partial class AddAssignmentWorkTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,25 +44,13 @@ namespace WardDesk.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("complaint_id");
 
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
                     b.Property<string>("Remarks")
                         .HasColumnType("text")
                         .HasColumnName("remarks");
 
-                    b.Property<DateTime?>("StartedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("started_at");
-
                     b.Property<Guid>("TechnicianId")
                         .HasColumnType("uuid")
                         .HasColumnName("technician_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<string>("WorkStatus")
                         .IsRequired()
@@ -345,11 +336,6 @@ namespace WardDesk.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("address");
-
-                    b.Property<string>("AssignmentStatus")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("assignment_status");
 
                     b.Property<string>("CitizenshipPhotoUrl")
                         .HasColumnType("text")

@@ -94,6 +94,21 @@ namespace WardDesk.Service.Notifications
 
             await SendEmailAsync(email, "Your WardDesk technician registration was rejected", body);
         }
+        public async Task SendComplaintResolvedEmailAsync(string email, string citizenName, Guid complaintId, string complaintTitle)
+        {
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; line-height:1.5; color:#1f2937;'>
+                  <h2 style='color:#2B4AA0;'>Complaint Resolved</h2>
+                  <p>Dear {WebUtility.HtmlEncode(citizenName)},</p>
+                  <p>Your complaint has been marked as <strong>resolved</strong>.</p>
+                  <p><strong>Complaint ID:</strong> {complaintId}</p>
+                  <p><strong>Title:</strong> {WebUtility.HtmlEncode(complaintTitle)}</p>
+                  <p>Thank you for using WardDesk.</p>
+                  <p>Regards,<br/>WardDesk Team</p>
+                </div>";
+
+            await SendEmailAsync(email, $"Complaint Resolved - {complaintId}", body);
+        }
 
         private async Task SendEmailAsync(string toEmail, string subject, string htmlBody)
         {

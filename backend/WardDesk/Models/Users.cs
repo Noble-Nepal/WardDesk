@@ -56,5 +56,7 @@ namespace WardDesk.Models
         [Column("profile_photo_url")]
         public string? ProfilePhotoUrl { get; set; }
         public Role? Role { get; set; }
+        [Column("assignment_status")]
+        public string AssignmentStatus { get; set; } = "unassigned";
     }
 }

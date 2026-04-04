@@ -13,5 +13,7 @@ namespace WardDesk.Service.Notifications
             Guid complaintId,
             string complaintTitle,
             string? remarks);
+        Task SendComplaintResolvedEmailAsync(string email, string citizenName, Guid complaintId, string complaintTitle);
     }
+
 }
