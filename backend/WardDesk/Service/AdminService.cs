@@ -100,19 +100,12 @@ namespace WardDesk.Services
                     UpdatedAt = u.UpdatedAt,
 
                     
-                             OngoingAssignments = _context.Assignments.Count(a =>
-                a.TechnicianId == u.UserId &&
-                a.Complaint != null &&
-                a.Complaint.Status != null &&
-                a.Complaint.Status.StatusName.ToLower() != "resolved" &&
-                a.Complaint.Status.StatusName.ToLower() != "closed"),
-
-            CompletedAssignments = _context.Assignments.Count(a =>
-                a.TechnicianId == u.UserId &&
-                a.Complaint != null &&
-                a.Complaint.Status != null &&
-                (a.Complaint.Status.StatusName.ToLower() == "resolved" ||
-                 a.Complaint.Status.StatusName.ToLower() == "closed"))
+                    OngoingAssignments = _context.Assignments.Count(a => a.TechnicianId == u.UserId),
+                    CompletedAssignments = _context.Assignments.Count(a =>
+                        a.TechnicianId == u.UserId &&
+                        a.Complaint != null &&
+                        a.Complaint.Status != null &&
+                        a.Complaint.Status.StatusName.ToLower() == "resolved")
                 })
                 .ToListAsync();
         }

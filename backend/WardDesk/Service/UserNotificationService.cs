@@ -27,7 +27,31 @@ namespace WardDesk.Service.Notifications
 
             await SendEmailAsync(email, "Your WardDesk technician account is verified", body);
         }
+        public async Task SendComplaintAssignedEmailAsync(
+            string email,
+            string technicianName,
+            Guid complaintId,
+            string complaintTitle,
+            string? remarks)
+                {
+                    var safeName = WebUtility.HtmlEncode(technicianName);
+                    var safeTitle = WebUtility.HtmlEncode(complaintTitle);
+                    var safeRemarks = string.IsNullOrWhiteSpace(remarks) ? "-" : WebUtility.HtmlEncode(remarks);
 
+                    var body = $@"
+                <div style='font-family: Arial, sans-serif; line-height:1.5; color:#1f2937;'>
+                  <h2 style='color:#2B4AA0;'>New Complaint Assignment</h2>
+                  <p>Dear {safeName},</p>
+                  <p>A new complaint has been <strong>assigned</strong> to you.</p>
+                  <p><strong>Complaint ID:</strong> {complaintId}</p>
+                  <p><strong>Title:</strong> {safeTitle}</p>
+                  <p><strong>Remarks:</strong> {safeRemarks}</p>
+                  <p>Please log in to WardDesk and take the necessary action.</p>
+                  <p>Regards,<br/>WardDesk Team</p>
+                </div>";
+
+                    await SendEmailAsync(email, $"New Complaint Assigned - {complaintId}", body);
+        }
         public async Task SendAccountStatusChangedEmailAsync(string email, string fullName, bool isActive, string? reason)
         {
             var subject = isActive
