@@ -11,9 +11,18 @@ namespace WardDesk.Services
     public class AdminService
     {
         private readonly AppDbContext _context;
-        public AdminService(AppDbContext context) { _context = context; }
+        private readonly Service.AccountAdministrationService _accountAdminService;
+        private readonly Service.Notifications.IUserNotificationService _notificationService;
+        public AdminService(
+            AppDbContext context,
+            Service.AccountAdministrationService accountAdminService,
+            Service.Notifications.IUserNotificationService notificationService)
+        {
+            _context = context;
+            _accountAdminService = accountAdminService;
+            _notificationService = notificationService;
+        }
 
-        // Fetch all pending technicians (who are unverified)
         public async Task<List<UserDTO>> GetPendingTechniciansAsync()
         {
             return await _context.Users
@@ -31,6 +40,7 @@ namespace WardDesk.Services
                     Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
+                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
                 })
@@ -41,26 +51,30 @@ namespace WardDesk.Services
         {
             var user = await _context.Users.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
+
             if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified)
                 return false;
 
             user.IsVerified = true;
             user.IsActive = true;
             user.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
+            await _notificationService.SendVerificationApprovedEmailAsync(user.Email, user.FullName);
             return true;
         }
 
         public async Task<bool> RejectTechnicianAsync(Guid userId)
         {
-            var user = await _context.Users.Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null || user.Role?.RoleName.ToLower() != "technician" || user.IsVerified)
-                return false;
+            return await _accountAdminService.RejectTechnicianAsync(userId);
+        }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return true;
+        public async Task<AccountStatusChangeResultDTO> UpdateAccountStatusAsync(
+            Guid userId,
+            bool isActive,
+            string? reason)
+        {
+            return await _accountAdminService.SetAccountActiveStatusAsync(userId, isActive, reason);
         }
 
         public async Task<List<UserDTO>> GetAllUsersAsync()
@@ -75,9 +89,10 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role!.RoleName, 
+                    Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
+                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
                 })
@@ -97,9 +112,10 @@ namespace WardDesk.Services
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     WardNumber = u.WardNumber,
-                    Role = u.Role!.RoleName, 
+                    Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
+                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
                 })
@@ -151,6 +167,7 @@ namespace WardDesk.Services
                     Role = u.Role!.RoleName,
                     IsActive = u.IsActive,
                     IsVerified = u.IsVerified,
+                    ProfilePhotoUrl = u.ProfilePhotoUrl, 
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
                 })

@@ -7,7 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
 using WardDesk.Database;
+using WardDesk.DTO;
 using WardDesk.Service;
+using WardDesk.Service.Notifications;
 using WardDesk.Services;
 
 namespace WardDesk
@@ -58,6 +60,10 @@ namespace WardDesk
             builder.Services.AddScoped<AnalyticsService>();
             builder.Services.AddScoped<AdminService>();
             builder.Services.AddScoped<ProfileService>();
+
+            builder.Services.AddScoped<AccountAdministrationService>();
+            builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
             builder.Services.AddCors(options =>
             {

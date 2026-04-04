@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Claims;
 using WardDesk.Service;
 using WardDesk.DTO;
 
@@ -29,20 +30,35 @@ namespace WardDesk.Controllers
                 var result = await _assignmentService.AssignComplaintAsync(adminId, request);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An unexpected server error occurred." });
+            }
         }
 
-        [HttpGet("complaint/{complaintId}")]
+        [HttpGet("complaint/{complaintId:guid}")]
         public async Task<ActionResult<List<AssignmentDTO>>> GetAssignmentsForComplaint(Guid complaintId)
         {
-            var result = await _assignmentService.GetAssignmentsForComplaint(complaintId);
-            return Ok(result);
+            try
+            {
+                var result = await _assignmentService.GetAssignmentsForComplaint(complaintId);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An unexpected server error occurred." });
+            }
         }
 
-        [HttpGet("{assignmentId}")]
+        [HttpGet("{assignmentId:guid}")]
         public async Task<ActionResult<AssignmentDTO>> GetAssignment(Guid assignmentId)
         {
             try
@@ -54,20 +70,36 @@ namespace WardDesk.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An unexpected server error occurred." });
+            }
+        }
+
+        [HttpGet("unassigned-complaints")]
+        public async Task<ActionResult<List<UnassignedComplaintDTO>>> GetUnassignedComplaints()
+        {
+            try
+            {
+                var complaints = await _assignmentService.GetUnassignedComplaintsAsync();
+                return Ok(complaints);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An unexpected server error occurred." });
+            }
         }
 
         private Guid GetUserId()
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                throw new UnauthorizedAccessException("Invalid token");
-            return Guid.Parse(userIdClaim);
-        }
-        [HttpGet("unassigned-complaints")]
-        public async Task<ActionResult<List<UnassignedComplaintDTO>>> GetUnassignedComplaints()
-        {
-            var complaints = await _assignmentService.GetUnassignedComplaintsAsync();
-            return Ok(complaints);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userIdClaim))
+                throw new UnauthorizedAccessException("Invalid token.");
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid user identifier in token.");
+
+            return userId;
         }
     }
 }

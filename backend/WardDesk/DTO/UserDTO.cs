@@ -11,6 +11,7 @@
         public string Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsVerified { get; set; }
+        public string? ProfilePhotoUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

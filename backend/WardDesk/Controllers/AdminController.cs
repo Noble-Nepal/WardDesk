@@ -37,6 +37,20 @@ public class AdminController : Controller
         return Ok(new { message = "Technician rejected and removed." });
     }
 
+    [HttpPut("users/{userId}/account-status")]
+    public async Task<IActionResult> UpdateAccountStatus(Guid userId, [FromBody] UpdateAccountStatusDTO dto)
+    {
+        try
+        {
+            var result = await _adminService.UpdateAccountStatusAsync(userId, dto.IsActive, dto.Reason);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
     [HttpGet("users")]
     public async Task<ActionResult> GetAllUsers()
     {
