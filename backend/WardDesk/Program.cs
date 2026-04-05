@@ -65,6 +65,7 @@ namespace WardDesk
             builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
             builder.Services.AddScoped<TechnicianWorkService>();
+            builder.Services.AddScoped<AdminComplaintManagementService>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReact", policy =>

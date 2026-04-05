@@ -37,6 +37,14 @@ public class AdminController : Controller
         return Ok(new { message = "Technician rejected and removed." });
     }
 
+    [HttpPut("unverify-technician/{userId}")]
+    public async Task<ActionResult> UnverifyTechnician(Guid userId)
+    {
+        var ok = await _adminService.UnverifyTechnicianAsync(userId);
+        if (!ok) return BadRequest(new { message = "Failed to unverify technician." });
+        return Ok(new { message = "Technician unverified and deactivated." });
+    }
+
     [HttpPut("users/{userId}/account-status")]
     public async Task<IActionResult> UpdateAccountStatus(Guid userId, [FromBody] UpdateAccountStatusDTO dto)
     {
@@ -80,6 +88,13 @@ public class AdminController : Controller
         var ok = await _adminService.DeleteUserAsync(userId);
         if (!ok) return NotFound(new { message = "User not found." });
         return Ok(new { message = "User deleted." });
+    }
+
+    [HttpGet("roles")]
+    public async Task<ActionResult> GetRoles()
+    {
+        var roles = await _adminService.GetRolesAsync();
+        return Ok(roles);
     }
 
     [HttpGet("citizens")]

@@ -71,6 +71,22 @@ namespace WardDesk.Services
             return await _accountAdminService.RejectTechnicianAsync(userId);
         }
 
+        public async Task<bool> UnverifyTechnicianAsync(Guid userId)
+        {
+            var user = await _context.Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null || user.Role?.RoleName.ToLower() != "technician" || !user.IsVerified)
+                return false;
+
+            user.IsVerified = false;
+            user.IsActive = false;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<AccountStatusChangeResultDTO> UpdateAccountStatusAsync(
             Guid userId,
             bool isActive,
@@ -175,6 +191,13 @@ namespace WardDesk.Services
             user.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return (true, oldRole, role.RoleName);
+        }
+
+        public async Task<List<RoleDTO>> GetRolesAsync()
+        {
+            return await _context.Roles
+                .Select(r => new RoleDTO { RoleId = r.RoleId, RoleName = r.RoleName })
+                .ToListAsync();
         }
 
         public async Task<bool> DeleteUserAsync(Guid userId)
