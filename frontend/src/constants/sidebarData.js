@@ -24,7 +24,7 @@ export const citizenNavItems = [
 export const adminNavItems = [
   {
     label: "Dashboard",
-    icon: "FileText",
+    icon: "LayoutDashboard",
     path: "/admin/dashboard",
   },
   {
@@ -37,11 +37,15 @@ export const adminNavItems = [
     icon: "Users",
     path: "/admin/user-management",
   },
-
   {
     label: "Manage Complaints",
-    icon: "BarChart3",
+    icon: "ClipboardList",
     path: "/admin/complaint-management",
+  },
+  {
+    label: "Profile Settings",
+    icon: "Settings",
+    path: "/admin/profile-settings",
   },
 ];
 
@@ -50,16 +54,6 @@ export const technicianNavItems = [
     label: "Complaint Dashboard",
     icon: "LayoutDashboard",
     path: "/technician/dashboard",
-  },
-  {
-    label: "My Complaints",
-    icon: "FileText",
-    path: "/technician/my-complaints",
-  },
-  {
-    label: "Analytics",
-    icon: "BarChart3",
-    path: "/technician/analytics",
   },
   {
     label: "Profile Settings",

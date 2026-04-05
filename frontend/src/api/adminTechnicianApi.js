@@ -23,6 +23,9 @@ export const verifyTechnician = (userId) =>
 export const rejectTechnician = (userId) =>
   axiosInstance.put(`${API_ENDPOINTS.REJECT_TECHNICIAN}/${userId}`);
 
+export const unverifyTechnician = (userId) =>
+  axiosInstance.put(`${API_ENDPOINTS.UNVERIFY_TECHNICIAN}/${userId}`);
+
 export async function getUnassignedComplaints() {
   const res = await axiosInstance.get(API_ENDPOINTS.GET_UNASSIGNED_COMPLAINTS);
   return (res.data || []).map(normalizeComplaint);

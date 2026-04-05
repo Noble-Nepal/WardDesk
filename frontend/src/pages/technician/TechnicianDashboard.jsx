@@ -351,16 +351,16 @@ const TechnicianDashboard = () => {
                       </div>
 
                       <div className="hidden sm:flex text-xs text-gray-500 items-center gap-1 mb-1 truncate">
-                        <MapPin className="w-3 h-3 flex-shrink-0" />
+                        <MapPin className="w-3 h-3 shrink-0" />
                         <span className="truncate">{c.address}</span>
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-gray-400 pt-1.5 border-t border-gray-100">
                         <span className="flex items-center gap-1 truncate">
-                          <User className="w-3 h-3 flex-shrink-0" />
+                          <User className="w-3 h-3 shrink-0" />
                           <span className="truncate">{c.citizenName}</span>
                         </span>
-                        <span className="flex-shrink-0 ml-2">
+                        <span className="shrink-0 ml-2">
                           {formatShortDate(c.submittedDate)}
                         </span>
                       </div>
@@ -386,7 +386,7 @@ const TechnicianDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="flex-shrink-0 w-20 sm:w-32 h-28 sm:h-32 bg-gray-100 border-l border-gray-100">
+                    <div className="shrink-0 w-20 sm:w-32 h-28 sm:h-32 bg-gray-100 border-l border-gray-100">
                       {c.complaintPhoto ? (
                         <img
                           src={c.complaintPhoto}
@@ -412,6 +412,9 @@ const TechnicianDashboard = () => {
               >
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full max-h-[inherit] flex flex-col">
                   <div className="p-5 border-b border-gray-200">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                      Details of the selected complaint:
+                    </p>
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-1.5 mb-1 text-xs text-gray-500">
@@ -707,7 +710,7 @@ const TechnicianDashboard = () => {
                       <img
                         key={i}
                         src={p}
-                        className="w-16 h-16 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-200 shrink-0"
                       />
                     ))}
                   </div>

@@ -20,6 +20,7 @@ import CitizenProfileSettings from "./pages/citizen/ProfileSettings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import TechnicianManagementDashboard from "./pages/admin/TechnicianManagementDashboard";
 import ComplaintManagementDashboard from "./pages/admin/ComplaintManagementDashboard";
+import AdminProfileSettings from "./pages/admin/ProfileSettings";
 //Technician Pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 import UserManagementDashboard from "./pages/admin/UserManagementDashboard";
@@ -55,6 +56,7 @@ const App = () => {
           path="complaint-management"
           element={<ComplaintManagementDashboard />}
         />
+        <Route path="profile-settings" element={<AdminProfileSettings />} />
       </Route>
 
       {/* -------- TECHNICIAN ROUTES -------- */}

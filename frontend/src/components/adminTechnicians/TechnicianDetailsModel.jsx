@@ -3,6 +3,7 @@ import {
   XCircle,
   UserCheck,
   UserX,
+  ShieldX,
   Hash,
   Phone,
   MapPin,
@@ -58,10 +59,11 @@ export default function TechnicianDetailsModal({
   onClose,
   onApprove,
   onReject,
+  onUnverify,
   onUpdateAccountStatus,
 }) {
   const ref = useRef();
-  const [submitting, setSubmitting] = useState(null); // "approve" | "reject" | "status" | null
+  const [submitting, setSubmitting] = useState(null); // "approve" | "reject" | "unverify" | "status" | null
   const [banner, setBanner] = useState(null); // { type: "success" | "error", title?, message }
   const [statusValue, setStatusValue] = useState("active");
 
@@ -93,6 +95,7 @@ export default function TechnicianDetailsModal({
   if (!open || !technician) return null;
 
   const canReview = technician.verificationStatus === "unverified";
+  const isVerified = technician.verificationStatus === "verified";
 
   const handleApproveClick = async () => {
     if (!onApprove || submitting) return;
@@ -132,6 +135,28 @@ export default function TechnicianDetailsModal({
       setBanner({
         type: "error",
         message: "Failed to reject technician. Please try again.",
+      });
+    } finally {
+      setSubmitting(null);
+    }
+  };
+
+  const handleUnverifyClick = async () => {
+    if (!onUnverify || submitting) return;
+    setBanner(null);
+    setSubmitting("unverify");
+
+    try {
+      await onUnverify(technician);
+      setBanner({
+        type: "success",
+        title: "Technician Unverified",
+        message: `${technician.fullName} has been unverified and their account deactivated.`,
+      });
+    } catch {
+      setBanner({
+        type: "error",
+        message: "Failed to unverify technician. Please try again.",
       });
     } finally {
       setSubmitting(null);
@@ -200,6 +225,8 @@ export default function TechnicianDetailsModal({
                 "Approving technician and sending approval email..."}
               {submitting === "reject" &&
                 "Rejecting technician and sending rejection email..."}
+              {submitting === "unverify" &&
+                "Unverifying technician and deactivating account..."}
               {submitting === "status" &&
                 "Updating account status and sending email..."}
             </div>
@@ -372,6 +399,26 @@ export default function TechnicianDetailsModal({
             >
               Close
             </button>
+
+            {isVerified && (
+              <button
+                onClick={handleUnverifyClick}
+                disabled={!!submitting}
+                className="h-10 px-4 rounded-lg bg-red-500 text-white hover:bg-red-600 inline-flex items-center justify-center disabled:opacity-60"
+              >
+                {submitting === "unverify" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Unverifying...
+                  </>
+                ) : (
+                  <>
+                    <ShieldX className="w-4 h-4 mr-2" />
+                    Unverify Technician
+                  </>
+                )}
+              </button>
+            )}
 
             {canReview && (
               <>

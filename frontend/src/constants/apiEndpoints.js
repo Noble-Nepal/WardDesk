@@ -26,7 +26,9 @@ export const API_ENDPOINTS = {
   PENDING_TECHNICIANS: "/admin/pending-technicians",
   VERIFY_TECHNICIAN: "/admin/verify-technician",
   REJECT_TECHNICIAN: "/admin/reject-technician",
+  UNVERIFY_TECHNICIAN: "/admin/unverify-technician",
   GET_ALL_USERS: "/admin/users",
+  GET_ROLES: "/admin/roles",
 
   // Assignment
   ASSIGN_COMPLAINT: "/assignment",

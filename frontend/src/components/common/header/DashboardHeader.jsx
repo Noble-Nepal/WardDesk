@@ -1,6 +1,5 @@
 import { HiOutlineMenu } from "react-icons/hi";
 import HeaderLogo from "./HeaderLogo";
-import HeaderNotification from "./HeaderNotification";
 import HeaderUserProfile from "./HeaderUserProfile";
 import useAuth from "../../../hooks/useAuth";
 
@@ -21,9 +20,8 @@ const DashboardHeader = ({ onMenuToggle }) => {
           <HeaderLogo role={role} />
         </div>
 
-        {/* Right: Notification + Profile */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <HeaderNotification hasUnread={true} />
+        {/* Right: Profile */}
+        <div className="flex items-center">
           <HeaderUserProfile user={user} role={role} />
         </div>
       </div>

@@ -109,7 +109,7 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
 
           <div className="pr-12">
             <p className="text-sm text-gray-500 mb-2">Complaint Title:</p>
-            <h2 className="text-2xl sm:text-3xl text-gray-900 leading-tight break-words">
+            <h2 className="text-2xl sm:text-3xl text-gray-900 leading-tight wrap-break-word">
               {safeIssue.title}
             </h2>
           </div>
@@ -161,7 +161,7 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
                     icon={<MdDescription className="w-5 h-5" />}
                     label="Title"
                   >
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {safeIssue.title}
                     </p>
                   </DetailRow>
@@ -170,7 +170,7 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
                     icon={<MdSubject className="w-5 h-5" />}
                     label="Description"
                   >
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {safeIssue.description || "—"}
                     </p>
                   </DetailRow>
@@ -192,7 +192,7 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
                     icon={<MdLocationOn className="w-5 h-5" />}
                     label="Location"
                   >
-                    <p className="text-sm text-gray-900 break-words">
+                    <p className="text-sm text-gray-900 wrap-break-word">
                       {safeIssue.location || "—"}
                     </p>
                   </DetailRow>

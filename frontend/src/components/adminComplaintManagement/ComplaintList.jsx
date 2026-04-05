@@ -98,11 +98,6 @@ const ComplaintList = ({ complaints, onView, loading }) => {
                   </div>
                 </td>
 
-                {/* Address */}
-                <td className="hidden lg:table-cell px-4 py-3 text-xs text-gray-700 max-w-40 truncate">
-                  {c.locationAddress || "-"}
-                </td>
-
                 {/* Status badge */}
                 <td className="px-4 py-3">
                   <span
@@ -110,6 +105,11 @@ const ComplaintList = ({ complaints, onView, loading }) => {
                   >
                     {formatStatus(c.statusName)}
                   </span>
+                </td>
+
+                {/* Address */}
+                <td className="hidden lg:table-cell px-4 py-3 text-xs text-gray-700 max-w-40 truncate">
+                  {c.locationAddress || "-"}
                 </td>
 
                 {/* Verified badge */}

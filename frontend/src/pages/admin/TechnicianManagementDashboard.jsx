@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import toast from "react-hot-toast";
 
 import HeaderSection from "../../components/adminTechnicians/HeaderSection";
 import StatsOverviewCard from "../../components/adminTechnicians/StatsOverviewCard";
@@ -7,7 +6,6 @@ import FilterSearchBar from "../../components/adminTechnicians/FilterSearchBar";
 import TechnicianTable from "../../components/adminTechnicians/TechnicianTable";
 import TechnicianDetailsModal from "../../components/adminTechnicians/TechnicianDetailsModel";
 import AssignComplaintModal from "../../components/adminTechnicians/AssignComplaintModal";
-import SuccessToast from "../../components/ui/SuccessToast";
 import ErrorAlert from "../../components/ui/ErrorAlert";
 
 import {
@@ -15,7 +13,8 @@ import {
   getAllTechnicians,
   verifyTechnician,
   rejectTechnician,
-  updateTechnicianAccountStatus, // NEW: make sure this exists in api file
+  unverifyTechnician,
+  updateTechnicianAccountStatus,
   getUnassignedComplaints,
   assignComplaint,
 } from "../../api/adminTechnicianApi";
@@ -30,24 +29,6 @@ export default function TechnicianManagementDashboard() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [pageError, setPageError] = useState("");
-
-  const showSuccessToast = (title, message) => {
-    toast.custom(
-      (t) => (
-        <div className={t.visible ? "animate-enter" : "animate-leave"}>
-          <SuccessToast title={title} message={message} />
-        </div>
-      ),
-      {
-        duration: 3500,
-        style: {
-          padding: "0",
-          background: "transparent",
-          boxShadow: "none",
-        },
-      },
-    );
-  };
 
   const loadData = async () => {
     setLoading(true);
@@ -113,6 +94,14 @@ export default function TechnicianManagementDashboard() {
     await loadData();
   };
 
+  const handleUnverify = async (tech) => {
+    const userId = tech?.userId || tech?.UserId;
+    if (!userId) throw new Error("Invalid technician id");
+
+    await unverifyTechnician(userId);
+    await loadData();
+  };
+
   const handleUpdateAccountStatus = async (tech, isActive) => {
     const userId = tech?.userId || tech?.UserId;
     if (!userId) throw new Error("Invalid technician id");
@@ -123,22 +112,11 @@ export default function TechnicianManagementDashboard() {
   };
 
   const handleAssign = async (complaint, technician) => {
-    try {
-      await assignComplaint({
-        complaintId: complaint?.complaintId,
-        technicianId: technician?.userId || technician?.UserId,
-      });
-
-      showSuccessToast(
-        "Complaint Assigned",
-        `Task assignment email sent to ${technician?.email || "technician"} in their Gmail.`,
-      );
-
-      await loadData();
-    } catch (err) {
-      console.error("Assign failed:", err);
-      setPageError("Failed to assign complaint. Please try again.");
-    }
+    await assignComplaint({
+      complaintId: complaint?.complaintId,
+      technicianId: technician?.userId || technician?.UserId,
+    });
+    await loadData();
   };
 
   return (
@@ -174,7 +152,8 @@ export default function TechnicianManagementDashboard() {
         onClose={() => setSelectedTechnician(null)}
         onApprove={handleApprove}
         onReject={handleReject}
-        onUpdateAccountStatus={handleUpdateAccountStatus} // NEW
+        onUnverify={handleUnverify}
+        onUpdateAccountStatus={handleUpdateAccountStatus}
       />
 
       <AssignComplaintModal

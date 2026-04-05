@@ -7,6 +7,7 @@ import {
   HiOutlineUsers,
   HiOutlineFolderOpen,
   HiOutlineChevronRight,
+  HiOutlineClipboardList,
 } from "react-icons/hi";
 import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 
@@ -15,6 +16,7 @@ const iconMap = {
   FileText: HiOutlineDocumentText,
   Settings: HiOutlineCog,
   BarChart3: HiOutlineChartBar,
+  ClipboardList: HiOutlineClipboardList,
   Users: HiOutlineUsers,
   Wrench: HiOutlineWrenchScrewdriver,
   FolderOpen: HiOutlineFolderOpen,
