@@ -6,6 +6,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  ShieldCheck,
+  ShieldX,
 } from "lucide-react";
 
 export const BRAND_BLUE = "#2B4AA0";
@@ -39,13 +41,13 @@ export const ACCOUNT_STATUS_META = {
 export const VERIFICATION_META = {
   verified: {
     label: "Verified",
-    cls: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    Icon: CheckCircle,
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Icon: ShieldCheck,
   },
   unverified: {
     label: "Unverified",
-    cls: "bg-orange-100 text-orange-700 border-orange-200",
-    Icon: Clock,
+    cls: "bg-red-50 text-red-700 border-red-200",
+    Icon: ShieldX,
   },
 };
 

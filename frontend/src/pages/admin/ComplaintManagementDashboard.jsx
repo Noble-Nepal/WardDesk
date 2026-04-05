@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FileText,
+  ClipboardList,
+  Clock,
+  ShieldCheck,
+  AlertCircle,
+} from "lucide-react";
 import ErrorAlert from "../../components/ui/ErrorAlert";
 import SuccessToast from "../../components/ui/SuccessToast";
 
@@ -24,6 +31,28 @@ import {
   downloadBlobFile,
 } from "../../utils/adminComplaintManagementUtils";
 
+const STATS_CONFIG = [
+  {
+    label: "Total Complaints",
+    color: "bg-[#2B4AA0]",
+    Icon: ClipboardList,
+    key: "total",
+  },
+  { label: "Pending", color: "bg-orange-500", Icon: Clock, key: "pending" },
+  {
+    label: "In Progress",
+    color: "bg-blue-500",
+    Icon: AlertCircle,
+    key: "inProgress",
+  },
+  {
+    label: "Verified",
+    color: "bg-emerald-500",
+    Icon: ShieldCheck,
+    key: "verified",
+  },
+];
+
 const ComplaintManagementDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [selectedComplaintId, setSelectedComplaintId] = useState(null);
@@ -44,6 +73,18 @@ const ComplaintManagementDashboard = () => {
     [filters],
   );
 
+  const stats = useMemo(() => {
+    const total = complaints.length;
+    const pending = complaints.filter(
+      (c) => String(c.statusName).toLowerCase() === "pending",
+    ).length;
+    const inProgress = complaints.filter((c) =>
+      ["assigned", "in_progress"].includes(String(c.statusName).toLowerCase()),
+    ).length;
+    const verified = complaints.filter((c) => c.isVerified).length;
+    return { total, pending, inProgress, verified };
+  }, [complaints]);
+
   const loadComplaints = async (activeFilters = apiFilters) => {
     setListLoading(true);
     setError("");
@@ -51,19 +92,6 @@ const ComplaintManagementDashboard = () => {
       const data = await getAdminComplaints(activeFilters);
       const list = Array.isArray(data) ? data : [];
       setComplaints(list);
-
-      if (!selectedComplaintId && list.length > 0) {
-        setSelectedComplaintId(list[0].complaintId);
-      }
-
-      if (
-        selectedComplaintId &&
-        list.length > 0 &&
-        !list.some((x) => x.complaintId === selectedComplaintId)
-      ) {
-        setSelectedComplaintId(list[0].complaintId);
-      }
-
       if (list.length === 0) {
         setSelectedComplaintId(null);
         setSelectedComplaintDetail(null);
@@ -80,7 +108,6 @@ const ComplaintManagementDashboard = () => {
       setSelectedComplaintDetail(null);
       return;
     }
-
     setDetailLoading(true);
     setError("");
     try {
@@ -121,6 +148,11 @@ const ComplaintManagementDashboard = () => {
   useEffect(() => {
     loadComplaintDetail(selectedComplaintId);
   }, [selectedComplaintId]); // eslint-disable-line
+
+  const handleCloseModal = () => {
+    setSelectedComplaintId(null);
+    setSelectedComplaintDetail(null);
+  };
 
   const onVerify = async () => {
     if (!selectedComplaintId) return;
@@ -223,13 +255,53 @@ const ComplaintManagementDashboard = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-full">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        <div className="mb-4">
-          <h1 className="text-2xl text-gray-900">Complaint Management</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            View and manage complaint verification, status, and category
-          </p>
+    <div className="bg-gray-50 min-h-screen pb-12">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+              Complaint Management
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              View and manage complaint verification, status, and category
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onDownloadPdf}
+            disabled={pdfLoading}
+            className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-[#2B4AA0] hover:bg-[#1f3a82] text-white text-sm font-medium shadow-sm transition-colors disabled:opacity-60"
+          >
+            <FileText className="w-4 h-4" />
+            <span>{pdfLoading ? "Downloading..." : "Download PDF"}</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        <ErrorAlert message={error} />
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {STATS_CONFIG.map((card) => (
+            <div
+              key={card.label}
+              className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex items-center gap-3"
+            >
+              <div
+                className={`w-12 h-12 rounded-lg ${card.color} flex items-center justify-center shrink-0`}
+              >
+                <card.Icon className="w-6 h-6 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-gray-600">{card.label}</p>
+                <p className="text-2xl font-semibold text-gray-900 leading-tight mt-0.5">
+                  {stats[card.key] ?? 0}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <ComplaintFilterBar
@@ -237,32 +309,27 @@ const ComplaintManagementDashboard = () => {
           setFilters={setFilters}
           categories={categories}
           onClear={() => setFilters(DEFAULT_FILTERS)}
-          onDownloadPdf={onDownloadPdf}
-          loadingPdf={pdfLoading}
         />
 
-        <ErrorAlert message={error} />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ComplaintList
-            complaints={complaints}
-            selectedComplaintId={selectedComplaintId}
-            onSelect={setSelectedComplaintId}
-            loading={listLoading}
-          />
-
-          <ComplaintDetailsPanel
-            complaint={selectedComplaintDetail}
-            categories={categories}
-            loading={detailLoading}
-            actionLoading={actionLoading}
-            onVerify={onVerify}
-            onUnverify={onUnverify}
-            onUpdateCategory={onUpdateCategory}
-            onUpdateStatus={onUpdateStatus}
-          />
-        </div>
+        <ComplaintList
+          complaints={complaints}
+          onView={setSelectedComplaintId}
+          loading={listLoading}
+        />
       </div>
+
+      <ComplaintDetailsPanel
+        open={!!selectedComplaintId}
+        complaint={selectedComplaintDetail}
+        categories={categories}
+        loading={detailLoading}
+        actionLoading={actionLoading}
+        onClose={handleCloseModal}
+        onVerify={onVerify}
+        onUnverify={onUnverify}
+        onUpdateCategory={onUpdateCategory}
+        onUpdateStatus={onUpdateStatus}
+      />
     </div>
   );
 };

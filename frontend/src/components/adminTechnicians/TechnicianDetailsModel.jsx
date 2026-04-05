@@ -378,7 +378,7 @@ export default function TechnicianDetailsModal({
                 <button
                   onClick={handleRejectClick}
                   disabled={!!submitting}
-                  className="h-10 px-4 rounded-lg bg-red-500 text-white hover:bg-red-600 inline-flex items-center justify-center disabled:opacity-60 min-w-[180px]"
+                  className="h-10 px-4 rounded-lg bg-red-500 text-white hover:bg-red-600 inline-flex items-center justify-center disabled:opacity-60 min-w-45"
                 >
                   {submitting === "reject" ? (
                     <>
@@ -396,7 +396,7 @@ export default function TechnicianDetailsModal({
                 <button
                   onClick={handleApproveClick}
                   disabled={!!submitting}
-                  className="h-10 px-4 rounded-lg bg-[#2B4AA0] text-white hover:opacity-95 inline-flex items-center justify-center disabled:opacity-60 min-w-[180px]"
+                  className="h-10 px-4 rounded-lg bg-[#2B4AA0] text-white hover:opacity-95 inline-flex items-center justify-center disabled:opacity-60 min-w-45"
                 >
                   {submitting === "approve" ? (
                     <>

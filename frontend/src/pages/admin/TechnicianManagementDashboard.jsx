@@ -21,7 +21,7 @@ import {
 } from "../../api/adminTechnicianApi";
 
 export default function TechnicianManagementDashboard() {
-  const [tab, setTab] = useState("Pending");
+  const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
   const [pending, setPending] = useState([]);
   const [all, setAll] = useState([]);
@@ -153,7 +153,7 @@ export default function TechnicianManagementDashboard() {
         <FilterSearchBar
           tab={tab}
           setTab={setTab}
-          tabCounts={[pending.length, all.length]}
+          tabCounts={[all.length, pending.length]}
           search={search}
           setSearch={setSearch}
         />

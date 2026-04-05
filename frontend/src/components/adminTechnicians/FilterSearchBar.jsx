@@ -9,7 +9,7 @@ export default function FilterSearchBar({
     <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
       {/* Tabs */}
       <div className="flex gap-2">
-        {["Pending", "All"].map((label, i) => (
+        {["All", "Pending"].map((label, i) => (
           <button
             key={label}
             onClick={() => setTab(label)}

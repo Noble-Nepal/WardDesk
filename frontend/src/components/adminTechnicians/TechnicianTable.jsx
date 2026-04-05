@@ -3,7 +3,6 @@ import StatusBadge from "./StatusBadge";
 import {
   ACCOUNT_STATUS_META,
   VERIFICATION_META,
-  ASSIGNMENT_META,
 } from "../../constants/adminTechnicianConstants";
 
 const getInitials = (name = "") =>
@@ -25,30 +24,24 @@ export default function TechnicianTable({ technicians, onView }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
-      <table className="min-w-full">
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+      <table className="w-full">
         <thead className="bg-gray-50">
           <tr>
             <th className="text-left text-xs text-gray-600 px-4 py-3">
               Technician
             </th>
-            <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
+            <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
               Ward
             </th>
             <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
-              Address
-            </th>
-            <th className="hidden sm:table-cell text-left text-xs text-gray-600 px-4 py-3">
               Contact
             </th>
             <th className="text-left text-xs text-gray-600 px-4 py-3">
               Account Status
             </th>
-            <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
+            <th className="hidden sm:table-cell text-left text-xs text-gray-600 px-4 py-3">
               Verification
-            </th>
-            <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
-              Assignment
             </th>
             <th className="text-right text-xs text-gray-600 px-4 py-3">
               Actions
@@ -62,55 +55,54 @@ export default function TechnicianTable({ technicians, onView }) {
             const verificationKey = String(
               tech.verificationStatus || "",
             ).toLowerCase();
-            const assignmentKey = String(
-              tech.assignmentStatus || "",
-            ).toLowerCase();
 
             return (
               <tr
                 key={tech.userId}
                 className="border-b last:border-0 border-gray-100 hover:bg-gray-50"
               >
+                {/* Technician */}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {tech.profilePhotoUrl ? (
                       <img
                         src={tech.profilePhotoUrl}
                         alt={tech.fullName}
-                        className="w-9 h-9 rounded-full object-cover border border-blue-200"
+                        className="w-9 h-9 rounded-full object-cover border border-blue-200 shrink-0"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 text-[#2B4AA0] text-sm font-semibold flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 text-[#2B4AA0] text-sm font-semibold flex items-center justify-center shrink-0">
                         {getInitials(tech.fullName)}
                       </div>
                     )}
-                    <div>
-                      <div className="text-sm text-gray-900 font-medium">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">
                         {tech.fullName}
                       </div>
-                      <div className="text-xs text-gray-500">{tech.email}</div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {tech.email}
+                      </div>
                     </div>
                   </div>
                 </td>
 
-                <td className="hidden md:table-cell px-4 py-3">
+                {/* Ward */}
+                <td className="hidden lg:table-cell px-4 py-3">
                   <div className="flex items-center gap-1.5 text-xs text-gray-700">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     Ward {tech.wardNumber ?? "-"}
                   </div>
                 </td>
 
-                <td className="hidden lg:table-cell px-4 py-3 text-xs text-gray-700">
-                  {tech.address || "-"}
-                </td>
-
-                <td className="hidden sm:table-cell px-4 py-3">
+                {/* Contact */}
+                <td className="hidden lg:table-cell px-4 py-3">
                   <div className="flex items-center gap-1.5 text-xs text-gray-700">
-                    <Phone className="w-3.5 h-3.5 text-gray-400" />
+                    <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     {tech.phoneNumber || "-"}
                   </div>
                 </td>
 
+                {/* Account Status */}
                 <td className="px-4 py-3">
                   <StatusBadge
                     meta={
@@ -120,7 +112,8 @@ export default function TechnicianTable({ technicians, onView }) {
                   />
                 </td>
 
-                <td className="hidden md:table-cell px-4 py-3">
+                {/* Verification */}
+                <td className="hidden sm:table-cell px-4 py-3">
                   <StatusBadge
                     meta={
                       VERIFICATION_META[verificationKey] ||
@@ -129,17 +122,9 @@ export default function TechnicianTable({ technicians, onView }) {
                   />
                 </td>
 
-                <td className="hidden lg:table-cell px-4 py-3">
-                  <StatusBadge
-                    meta={
-                      ASSIGNMENT_META[assignmentKey] ||
-                      ASSIGNMENT_META.unassigned
-                    }
-                  />
-                </td>
-
+                {/* Actions */}
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end">
                     <button
                       onClick={() => onView?.(tech)}
                       className="h-8 px-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 inline-flex items-center text-sm"
