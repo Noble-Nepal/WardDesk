@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 const PROFILE_PATHS = {
   admin: "/admin/profile-settings",
+  superadmin: "/superadmin/profile-settings",
   technician: "/technician/profile-settings",
   citizen: "/citizen/profile-settings",
 };

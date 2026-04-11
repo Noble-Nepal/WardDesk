@@ -7,12 +7,14 @@ import {
   citizenNavItems,
   adminNavItems,
   technicianNavItems,
+  superadminNavItems,
 } from "../../../constants/sidebarData";
 
 const navItemsByRole = {
   citizen: citizenNavItems,
   admin: adminNavItems,
   technician: technicianNavItems,
+  superadmin: superadminNavItems,
 };
 
 const Sidebar = ({ isOpen, onClose }) => {

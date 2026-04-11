@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { X, MapPin, Phone, Hash, Calendar, Mail, Loader2 } from "lucide-react";
+import { X, MapPin, Phone, Hash, Calendar, Mail, Loader2, ShieldCheck, ShieldX } from "lucide-react";
+import { assignRole } from "../../api/superadminApi";
 
 const getInitials = (name = "") =>
   name
@@ -29,9 +30,11 @@ function InfoField({ icon: Icon, label, value }) {
   );
 }
 
-export default function UserDetailsModal({ open, user, onClose, onSave, actionLoading }) {
+export default function UserDetailsModal({ open, user, onClose, onSave, actionLoading, isSuperadmin, onRoleChange }) {
   const ref = useRef();
   const [statusValue, setStatusValue] = useState("active");
+  const [roleLoading, setRoleLoading] = useState(false);
+  const [roleBanner, setRoleBanner] = useState(null); // { type: "success"|"error", msg }
 
   useEffect(() => {
     if (!open || !user) return;
@@ -53,11 +56,26 @@ export default function UserDetailsModal({ open, user, onClose, onSave, actionLo
     return () => document.removeEventListener("mousedown", onClick);
   }, [open, onClose, actionLoading]);
 
+  const handleRoleChange = async (newRoleId) => {
+    setRoleLoading(true);
+    setRoleBanner(null);
+    try {
+      await assignRole(user.id, newRoleId);
+      setRoleBanner({ type: "success", msg: `Role updated successfully.` });
+      onRoleChange?.();
+    } catch {
+      setRoleBanner({ type: "error", msg: "Failed to update role. Please try again." });
+    } finally {
+      setRoleLoading(false);
+    }
+  };
+
   if (!open || !user) return null;
 
   const roleMeta = ROLE_META[(user.role || "citizen").toLowerCase()] || ROLE_META.citizen;
   const currentStatus = user.isActive ? "active" : "inactive";
   const statusChanged = statusValue !== currentStatus;
+  const canChangeRole = isSuperadmin && (user.role === "citizen" || user.role === "admin");
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 p-4 flex items-center justify-center">
@@ -142,6 +160,44 @@ export default function UserDetailsModal({ open, user, onClose, onSave, actionLo
               />
             </div>
           </div>
+
+          {/* Role Assignment (superadmin only) */}
+          {canChangeRole && (
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-1">Role Assignment</p>
+              <p className="text-xs text-gray-500 mb-3">Promote or demote this user's role</p>
+              {roleBanner && (
+                <div
+                  className={`mb-3 flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
+                    roleBanner.type === "success"
+                      ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
+                      : "bg-red-50 border border-red-200 text-red-700"
+                  }`}
+                >
+                  {roleBanner.msg}
+                </div>
+              )}
+              {user.role === "citizen" ? (
+                <button
+                  onClick={() => handleRoleChange(3)}
+                  disabled={roleLoading}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm disabled:opacity-50"
+                >
+                  {roleLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  Promote to Admin
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleRoleChange(1)}
+                  disabled={roleLoading}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-gray-600 hover:bg-gray-700 text-white text-sm disabled:opacity-50"
+                >
+                  {roleLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldX className="w-4 h-4" />}
+                  Demote to Citizen
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Account Status */}
           <div className="border-t border-gray-200 pt-4">

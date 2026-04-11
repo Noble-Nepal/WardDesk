@@ -4,6 +4,9 @@ import { API_ENDPOINTS } from "../constants/apiEndpoints";
 export const fetchCitizens = (params) =>
   axiosInstance.get(API_ENDPOINTS.GET_ALL_CITIZENS, { params });
 
+export const fetchAllUsers = (params) =>
+  axiosInstance.get(API_ENDPOINTS.GET_ALL_USERS, { params });
+
 export const fetchCitizenById = (id) =>
   axiosInstance.get(API_ENDPOINTS.GET_CITIZEN_BY_ID(id));
 

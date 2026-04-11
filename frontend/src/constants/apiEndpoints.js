@@ -40,6 +40,9 @@ export const API_ENDPOINTS = {
   UPDATE_USER_ROLE: (userId) => `/admin/users/${userId}/role`,
   DELETE_CITIZEN: (id) => `/admin/citizens/${id}`,
 
+  // Superadmin
+  ASSIGN_ROLE: (userId) => `/superadmin/users/${userId}/assign-role`,
+
   // Admin complaint management
   ADMIN_COMPLAINTS_MANAGEMENT: "/admin/complaints-management",
   ADMIN_COMPLAINTS_REPORT_PDF: "/admin/complaints-management/report/pdf",

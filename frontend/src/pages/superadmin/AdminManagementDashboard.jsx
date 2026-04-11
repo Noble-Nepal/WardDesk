@@ -7,16 +7,15 @@ import UserDetailsModal from "../../components/userManagement/UserDetailsModal";
 import ErrorAlert from "../../components/ui/ErrorAlert";
 import SuccessToast from "../../components/ui/SuccessToast";
 
-import { fetchCitizens, fetchAllUsers } from "../../api/userApi";
+import { fetchAllUsers } from "../../api/userApi";
 import { updateTechnicianAccountStatus } from "../../api/adminTechnicianApi";
-import { Users, UserCheck, UserCog, ClipboardList } from "lucide-react";
-import useAuth from "../../hooks/useAuth";
+import { ShieldCheck, UserCheck, UserCog, Users } from "lucide-react";
 
 const STATS_CONFIG = [
-  { label: "Total Users", color: "bg-[#2B4AA0]", Icon: Users },
-  { label: "Active Users", color: "bg-emerald-500", Icon: UserCheck },
-  { label: "Inactive Users", color: "bg-gray-500", Icon: UserCog },
-  { label: "Filtered", color: "bg-red-500", Icon: ClipboardList },
+  { label: "Total Admins", color: "bg-[#2B4AA0]", Icon: ShieldCheck },
+  { label: "Active Admins", color: "bg-emerald-500", Icon: UserCheck },
+  { label: "Inactive Admins", color: "bg-gray-500", Icon: UserCog },
+  { label: "Filtered", color: "bg-red-500", Icon: Users },
 ];
 
 function mapUser(u) {
@@ -30,31 +29,31 @@ function mapUser(u) {
     profilePhoto: u.profilePhotoUrl,
     isActive: u.isActive,
     createdAt: u.createdAt,
-    role: (u.role || "citizen").toLowerCase(),
+    role: (u.role || "admin").toLowerCase(),
   };
 }
 
-export default function UserManagementDashboard() {
-  const { role } = useAuth();
-  const isSuperadmin = role === "superadmin";
-
-  const [users, setUsers] = useState([]);
+export default function AdminManagementDashboard() {
+  const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [pageError, setPageError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
     setPageError("");
     try {
-      const res = isSuperadmin ? await fetchAllUsers() : await fetchCitizens();
+      const res = await fetchAllUsers();
       const data = Array.isArray(res) ? res : res.data || [];
-      setUsers(data.map(mapUser));
+      const adminUsers = data
+        .map(mapUser)
+        .filter((u) => u.role === "admin");
+      setAdmins(adminUsers);
     } catch {
-      setPageError("Failed to load users. Please refresh and try again.");
+      setPageError("Failed to load admins. Please refresh and try again.");
     } finally {
       setLoading(false);
     }
@@ -64,8 +63,8 @@ export default function UserManagementDashboard() {
     loadData();
   }, []);
 
-  const visibleUsers = useMemo(() => {
-    let base = users;
+  const visibleAdmins = useMemo(() => {
+    let base = admins;
     const q = search.trim().toLowerCase();
     if (q) {
       base = base.filter((u) =>
@@ -77,13 +76,13 @@ export default function UserManagementDashboard() {
     if (statusFilter === "active") base = base.filter((u) => u.isActive);
     if (statusFilter === "inactive") base = base.filter((u) => !u.isActive);
     return base;
-  }, [users, search, statusFilter]);
+  }, [admins, search, statusFilter]);
 
   const stats = useMemo(() => {
-    const active = users.filter((u) => u.isActive).length;
-    const inactive = users.length - active;
-    return [users.length, active, inactive, visibleUsers.length];
-  }, [users, visibleUsers]);
+    const active = admins.filter((u) => u.isActive).length;
+    const inactive = admins.length - active;
+    return [admins.length, active, inactive, visibleAdmins.length];
+  }, [admins, visibleAdmins]);
 
   const showSuccess = (title, message) => {
     toast.custom(
@@ -97,22 +96,20 @@ export default function UserManagementDashboard() {
   };
 
   const handleSave = async ({ isActive }) => {
-    if (!selectedUser || isActive === undefined) return;
+    if (!selectedAdmin || isActive === undefined) return;
     setActionLoading(true);
     setPageError("");
     try {
       const reason = isActive
-        ? "Your account has been activated by the administrator. You can now log in and use the system."
-        : "Your account has been deactivated by the administrator. Please contact support if you believe this is a mistake.";
+        ? "Your account has been activated by the superadmin. You can now log in and use the system."
+        : "Your account has been deactivated by the superadmin. Please contact support if you believe this is a mistake.";
 
-      await updateTechnicianAccountStatus(selectedUser.id, isActive, reason);
+      await updateTechnicianAccountStatus(selectedAdmin.id, isActive, reason);
       await loadData();
-      setSelectedUser((prev) =>
-        prev ? { ...prev, isActive } : null,
-      );
+      setSelectedAdmin((prev) => (prev ? { ...prev, isActive } : null));
       showSuccess(
         isActive ? "Account Activated" : "Account Deactivated",
-        `${selectedUser.name} has been ${isActive ? "activated" : "deactivated"}. A notification email has been sent to ${selectedUser.email}.`,
+        `${selectedAdmin.name} has been ${isActive ? "activated" : "deactivated"}. A notification email has been sent to ${selectedAdmin.email}.`,
       );
     } catch {
       setPageError("Failed to save changes. Please try again.");
@@ -126,9 +123,9 @@ export default function UserManagementDashboard() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5">
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Admin Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            View and manage all registered users
+            View and manage all system administrators
           </p>
         </div>
       </div>
@@ -164,17 +161,17 @@ export default function UserManagementDashboard() {
         {loading ? (
           <div className="text-center py-12 text-gray-500">Loading...</div>
         ) : (
-          <UserTable users={visibleUsers} onView={setSelectedUser} isSuperadmin={isSuperadmin} />
+          <UserTable users={visibleAdmins} onView={setSelectedAdmin} isSuperadmin />
         )}
       </div>
 
       <UserDetailsModal
-        open={!!selectedUser}
-        user={selectedUser}
-        onClose={() => setSelectedUser(null)}
+        open={!!selectedAdmin}
+        user={selectedAdmin}
+        onClose={() => setSelectedAdmin(null)}
         onSave={handleSave}
         actionLoading={actionLoading}
-        isSuperadmin={isSuperadmin}
+        isSuperadmin
         onRoleChange={loadData}
       />
     </div>

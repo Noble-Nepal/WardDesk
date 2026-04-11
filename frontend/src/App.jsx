@@ -1,8 +1,9 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import TechnicianLayout from "./layouts/TechnicianLayout";
+import SuperadminLayout from "./layouts/SuperadminLayout";
 
 //Public Pages
 import Login from "./pages/auth/Login";
@@ -25,6 +26,9 @@ import AdminProfileSettings from "./pages/admin/ProfileSettings";
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 import UserManagementDashboard from "./pages/admin/UserManagementDashboard";
 import TechnicianProfileSettings from "./pages/technician/ProfileSettings";
+//Superadmin Pages
+import AdminManagementDashboard from "./pages/superadmin/AdminManagementDashboard";
+import SuperadminProfileSettings from "./pages/superadmin/ProfileSettings";
 
 const App = () => {
   return (
@@ -57,6 +61,17 @@ const App = () => {
           element={<ComplaintManagementDashboard />}
         />
         <Route path="profile-settings" element={<AdminProfileSettings />} />
+      </Route>
+
+      {/* -------- SUPERADMIN ROUTES -------- */}
+      <Route path="/superadmin" element={<SuperadminLayout />}>
+        <Route index element={<Navigate to="/superadmin/admin-management" replace />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="admin-management" element={<AdminManagementDashboard />} />
+        <Route path="technician-management" element={<TechnicianManagementDashboard />} />
+        <Route path="user-management" element={<UserManagementDashboard />} />
+        <Route path="complaint-management" element={<ComplaintManagementDashboard />} />
+        <Route path="profile-settings" element={<SuperadminProfileSettings />} />
       </Route>
 
       {/* -------- TECHNICIAN ROUTES -------- */}

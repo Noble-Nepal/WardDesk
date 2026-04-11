@@ -49,6 +49,34 @@ export const adminNavItems = [
   },
 ];
 
+export const superadminNavItems = [
+  {
+    label: "Manage Admins",
+    icon: "ShieldCheck",
+    path: "/superadmin/admin-management",
+  },
+  {
+    label: "Manage Technicians",
+    icon: "Wrench",
+    path: "/superadmin/technician-management",
+  },
+  {
+    label: "Manage Users",
+    icon: "Users",
+    path: "/superadmin/user-management",
+  },
+  {
+    label: "Manage Complaints",
+    icon: "ClipboardList",
+    path: "/superadmin/complaint-management",
+  },
+  {
+    label: "Profile Settings",
+    icon: "Settings",
+    path: "/superadmin/profile-settings",
+  },
+];
+
 export const technicianNavItems = [
   {
     label: "Complaint Dashboard",

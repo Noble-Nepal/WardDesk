@@ -8,6 +8,7 @@ import {
   HiOutlineFolderOpen,
   HiOutlineChevronRight,
   HiOutlineClipboardList,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
 import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 
@@ -20,6 +21,7 @@ const iconMap = {
   Users: HiOutlineUsers,
   Wrench: HiOutlineWrenchScrewdriver,
   FolderOpen: HiOutlineFolderOpen,
+  ShieldCheck: HiOutlineShieldCheck,
 };
 
 const SidebarNavItem = ({ item, onNavigate }) => {

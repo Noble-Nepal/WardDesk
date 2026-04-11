@@ -1,0 +1,26 @@
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import DashboardHeader from "../components/common/header/DashboardHeader";
+import Footer from "../components/common/footer/Footer";
+import Sidebar from "../components/common/sidebar/SideBar";
+
+const SuperadminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  return (
+    <ProtectedRoute allowedRoles={["superadmin"]}>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+        <div className="flex flex-1 pt-16">
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <main className="flex-1 min-w-0 p-4 sm:p-6">
+            <Outlet />
+          </main>
+        </div>
+        <Footer />
+      </div>
+    </ProtectedRoute>
+  );
+};
+
+export default SuperadminLayout;

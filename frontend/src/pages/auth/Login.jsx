@@ -89,6 +89,9 @@ const Login = () => {
         const role = decoded[ROLE_CLAIM];
 
         switch (role) {
+          case "superadmin":
+            navigate("/superadmin/admin-management");
+            break;
           case "admin":
             navigate("/admin/dashboard");
             break;
