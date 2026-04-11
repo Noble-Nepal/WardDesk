@@ -49,11 +49,11 @@ const ComplaintList = ({ complaints, onView, loading }) => {
               <th className="text-left text-xs text-gray-600 px-4 py-3">
                 Status
               </th>
-              <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
-                Verified
-              </th>
               <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
                 Address
+              </th>
+              <th className="hidden md:table-cell text-left text-xs text-gray-600 px-4 py-3">
+                Verified
               </th>
               <th className="hidden lg:table-cell text-left text-xs text-gray-600 px-4 py-3">
                 Date

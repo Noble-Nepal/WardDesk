@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MdClose,
-  MdDescription,
   MdSubject,
   MdLabel,
   MdLocationOn,
@@ -49,10 +48,10 @@ const timelineSteps = [
 ];
 
 const DetailRow = ({ icon, label, children }) => (
-  <div className="flex gap-3 p-3 bg-gray-50 rounded-xl">
-    <div className="w-5 h-5 text-gray-400 shrink-0 mt-0.5">{icon}</div>
+  <div className="flex gap-2.5 p-2.5 bg-gray-50 rounded-lg">
+    <div className="w-4 h-4 text-gray-400 shrink-0 mt-0.5">{icon}</div>
     <div className="flex-1 min-w-0">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className="text-xs text-gray-500 mb-0.5">{label}</p>
       {children}
     </div>
   </div>
@@ -98,26 +97,30 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-        <div className="relative bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <button
-            onClick={onClose}
-            className="absolute top-4 sm:top-6 right-4 sm:right-6 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <MdClose className="w-5 h-5 text-gray-500" />
-          </button>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
 
-          <div className="pr-12">
-            <p className="text-sm text-gray-500 mb-2">Complaint Title:</p>
-            <h2 className="text-2xl sm:text-3xl text-gray-900 leading-tight wrap-break-word">
+        {/* ── Sticky Header ── */}
+        <div className="shrink-0 flex items-start justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 border-b border-gray-200">
+          <div className="min-w-0">
+            <p className="text-xs text-gray-400 mb-1">Complaint Details</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 leading-snug wrap-break-word">
               {safeIssue.title}
             </h2>
           </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 p-1.5 hover:bg-gray-100 rounded-lg transition-colors mt-0.5"
+          >
+            <MdClose className="w-5 h-5 text-gray-500" />
+          </button>
         </div>
 
-        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            <div className="flex flex-col items-center space-y-6">
+        {/* ── Scrollable Body ── */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-5 sm:px-6 py-4 sm:py-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+            {/* Left — QR + Map */}
+            <div className="flex flex-col gap-4">
               <QRCodeSection
                 trackingId={trackingId}
                 issueTitle={safeIssue.title}
@@ -131,21 +134,17 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
               />
 
               {!isSuccessModal && (
-                <div className="w-full">
-                  <h3 className="text-sm text-gray-500 mb-3">Location</h3>
-
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Location on Map</p>
                   {hasCoordinates ? (
-                    <div className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50">
+                    <div className="border border-gray-200 rounded-xl overflow-hidden" style={{ height: "160px" }}>
                       <NepalMapPicker value={coords} readOnly />
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 h-48 flex flex-col items-center justify-center">
-                      <MapPin className="w-10 h-10 text-red-500 opacity-30 mb-2" />
-                      <p className="text-gray-600 text-sm mb-0.5">
+                    <div className="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 h-32 flex flex-col items-center justify-center gap-1">
+                      <MapPin className="w-7 h-7 text-red-400 opacity-40" />
+                      <p className="text-xs text-gray-500">
                         {safeIssue.location || "Location unavailable"}
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Interactive map view
                       </p>
                     </div>
                   )}
@@ -153,120 +152,82 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
               )}
             </div>
 
-            <div className="space-y-6">
+            {/* Right — Details + Timeline */}
+            <div className="flex flex-col gap-4">
+              {/* Details */}
               <div>
-                <h3 className="text-sm text-gray-500 mb-4">Issue Details</h3>
-                <div className="space-y-3">
-                  <DetailRow
-                    icon={<MdDescription className="w-5 h-5" />}
-                    label="Title"
-                  >
-                    <p className="text-sm text-gray-900 wrap-break-word">
-                      {safeIssue.title}
-                    </p>
-                  </DetailRow>
-
-                  <DetailRow
-                    icon={<MdSubject className="w-5 h-5" />}
-                    label="Description"
-                  >
-                    <p className="text-sm text-gray-900 wrap-break-word">
+                <p className="text-xs text-gray-500 mb-2">Issue Details</p>
+                <div className="space-y-2">
+                  <DetailRow icon={<MdSubject className="w-4 h-4" />} label="Description">
+                    <p className="text-sm text-gray-900 wrap-break-word line-clamp-3">
                       {safeIssue.description || "—"}
                     </p>
                   </DetailRow>
 
-                  <DetailRow
-                    icon={<MdLabel className="w-5 h-5" />}
-                    label="Category"
-                  >
-                    <span
-                      className={`inline-flex px-3 py-1 rounded-full text-xs ${getCategoryBadgeClass(
-                        safeIssue.category,
-                      )}`}
-                    >
-                      {safeIssue.category || "—"}
-                    </span>
-                  </DetailRow>
-
-                  <DetailRow
-                    icon={<MdLocationOn className="w-5 h-5" />}
-                    label="Location"
-                  >
-                    <p className="text-sm text-gray-900 wrap-break-word">
-                      {safeIssue.location || "—"}
-                    </p>
-                  </DetailRow>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <DetailRow
-                      icon={<MdFlag className="w-5 h-5" />}
-                      label="Priority"
-                    >
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs capitalize ${getPriorityBadgeClass(
-                          safeIssue.priority,
-                        )}`}
-                      >
-                        {safeIssue.priority || "low"}
+                  <div className="grid grid-cols-2 gap-2">
+                    <DetailRow icon={<MdLabel className="w-4 h-4" />} label="Category">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs ${getCategoryBadgeClass(safeIssue.category)}`}>
+                        {safeIssue.category || "—"}
                       </span>
                     </DetailRow>
 
-                    <DetailRow
-                      icon={<MdRoom className="w-5 h-5" />}
-                      label="Ward"
-                    >
-                      <p className="text-sm text-gray-900">
+                    <DetailRow icon={<MdFlag className="w-4 h-4" />} label="Priority">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs capitalize ${getPriorityBadgeClass(safeIssue.priority)}`}>
+                        {safeIssue.priority || "low"}
+                      </span>
+                    </DetailRow>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <DetailRow icon={<MdLocationOn className="w-4 h-4" />} label="Location">
+                      <p className="text-xs text-gray-900 wrap-break-word">{safeIssue.location || "—"}</p>
+                    </DetailRow>
+
+                    <DetailRow icon={<MdRoom className="w-4 h-4" />} label="Ward">
+                      <p className="text-xs text-gray-900">
                         {safeIssue.ward ? `Ward ${safeIssue.ward}` : "—"}
                       </p>
                     </DetailRow>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <DetailRow
-                      icon={<MdPerson className="w-5 h-5" />}
-                      label="Reporter"
-                    >
-                      <p className="text-sm text-gray-900 truncate">
+                  <div className="grid grid-cols-2 gap-2">
+                    <DetailRow icon={<MdPerson className="w-4 h-4" />} label="Reporter">
+                      <p className="text-xs text-gray-900 truncate">
                         {safeIssue.submittedBy || safeIssue.reportedBy || "—"}
                       </p>
                     </DetailRow>
 
-                    <DetailRow
-                      icon={<MdCalendarToday className="w-5 h-5" />}
-                      label="Date"
-                    >
-                      <p className="text-sm text-gray-900">
-                        {safeIssue.date || "—"}
-                      </p>
+                    <DetailRow icon={<MdCalendarToday className="w-4 h-4" />} label="Date">
+                      <p className="text-xs text-gray-900">{safeIssue.date || "—"}</p>
                     </DetailRow>
                   </div>
                 </div>
               </div>
 
+              {/* Status Timeline — horizontal */}
               {!isSuccessModal && (
                 <div>
-                  <h3 className="text-sm text-gray-500 mb-4">
-                    Status Timeline
-                  </h3>
-                  <div className="bg-white border border-gray-200 rounded-lg p-5">
-                    <div className="space-y-4">
+                  <p className="text-xs text-gray-500 mb-2">Status Timeline</p>
+                  <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                    <div className="flex items-start gap-1">
                       {timelineSteps.map((t, idx) => {
                         const completed = idx + 1 <= step;
                         const Icon = t.Icon;
+                        const isLast = idx === timelineSteps.length - 1;
                         return (
-                          <div key={t.label} className="flex gap-3">
+                          <div key={t.label} className="flex-1 flex flex-col items-center gap-1 relative">
                             <div
-                              className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                                completed
-                                  ? "bg-green-100 text-green-600"
-                                  : "bg-gray-100 text-gray-400"
+                              className={`w-7 h-7 rounded-full flex items-center justify-center z-10 ${
+                                completed ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
                               }`}
                             >
-                              <Icon className="w-4 h-4" />
+                              <Icon className="w-3.5 h-3.5" />
                             </div>
-                            <p
-                              className={`text-sm ${completed ? "text-gray-900" : "text-gray-500"}`}
-                            >
+                            {/* connector line */}
+                            {!isLast && (
+                              <div className={`absolute top-3.5 left-[calc(50%+14px)] right-[calc(-50%+14px)] h-px ${completed && idx + 2 <= step ? "bg-green-300" : "bg-gray-200"}`} />
+                            )}
+                            <p className={`text-center text-[10px] leading-tight ${completed ? "text-gray-700" : "text-gray-400"}`}>
                               {t.label}
                             </p>
                           </div>
@@ -279,54 +240,74 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
             </div>
           </div>
 
-          {showPhotos && !isSuccessModal && (
-            <div className="mt-6 sm:mt-8">
-              <h3 className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-                <MdImage className="w-4 h-4" />
-                Photos ({photos.length})
-              </h3>
-              <div className="grid grid-cols-3 gap-3">
-                {photos.map((url, idx) => (
-                  <div
-                    key={`${url}-${idx}`}
-                    className="rounded-xl overflow-hidden border border-gray-200 aspect-square"
-                  >
-                    <img
-                      src={url}
-                      alt={`${safeIssue.title} - Photo ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Photos — Before / After (permanent labels) */}
+          {showPhotos && !isSuccessModal && (() => {
+            const beforePhotos = safeIssue.beforePhotos || photos;
+            const afterPhotos = safeIssue.afterPhotos || safeIssue.workPhotoUrls || [];
 
-          <div className="mt-6 sm:mt-8">
-            {isSuccessModal ? (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handlePrimary}
-                  className="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg shadow-sm transition-colors"
-                >
-                  View My Complaints
-                </button>
-                <button
-                  onClick={handleSecondary}
-                  className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm rounded-lg transition-colors"
-                >
-                  Submit Another
-                </button>
+            return (
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                    <MdImage className="w-3.5 h-3.5" />
+                    Before
+                    <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px]">Original</span>
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {beforePhotos.map((url, idx) => (
+                      <div key={`before-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                        <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {afterPhotos.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                      <MdImage className="w-3.5 h-3.5" />
+                      After
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px]">Resolved</span>
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {afterPhotos.map((url, idx) => (
+                        <div key={`after-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                          <img src={url} alt={`After photo ${idx + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            ) : (
+            );
+          })()}
+        </div>
+
+        {/* ── Sticky Footer ── */}
+        <div className="shrink-0 px-5 sm:px-6 py-4 border-t border-gray-100">
+          {isSuccessModal ? (
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={onClose}
-                className={`${isTrackedVariant ? "w-full" : "flex-1"} inline-flex items-center justify-center px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg shadow-sm transition-colors`}
+                onClick={handlePrimary}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg shadow-sm transition-colors"
               >
-                Close
+                View My Complaints
               </button>
-            )}
-          </div>
+              <button
+                onClick={handleSecondary}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm rounded-lg transition-colors"
+              >
+                Submit Another
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onClose}
+              className={`${isTrackedVariant ? "w-full" : "w-full sm:w-auto"} inline-flex items-center justify-center px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg shadow-sm transition-colors`}
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import {
   getStatusLabel,
 } from "../../constants/dashboardConstants";
 
-const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
+const ComplaintCard = ({ complaint, onViewDetails }) => {
   const photoUrl =
     complaint.photoUrls?.[0] || complaint.imageUrl || complaint.photo;
 
@@ -29,7 +29,6 @@ const ComplaintCard = ({ complaint, userVote = null, onViewDetails }) => {
             downvoteCount={complaint.downvoteCount}
             netVotes={complaint.netVotes}
             userVote={complaint.userVote}
-            direction="horizontal"
           />
         </div>
 

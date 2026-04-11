@@ -10,11 +10,6 @@ export const citizenNavItems = [
     path: "/citizen/my-complaints",
   },
   {
-    label: "Analytics",
-    icon: "BarChart3",
-    path: "/citizen/analytics",
-  },
-  {
     label: "Profile Settings",
     icon: "Settings",
     path: "/citizen/profile-settings",

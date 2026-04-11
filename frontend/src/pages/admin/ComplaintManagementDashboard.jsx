@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
 import {
   FileText,
   ClipboardList,
@@ -8,7 +7,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import ErrorAlert from "../../components/ui/ErrorAlert";
-import SuccessToast from "../../components/ui/SuccessToast";
 
 import ComplaintFilterBar from "../../components/adminComplaintManagement/ComplaintFilterBar";
 import ComplaintList from "../../components/adminComplaintManagement/ComplaintList";
@@ -63,7 +61,6 @@ const ComplaintManagementDashboard = () => {
 
   const [listLoading, setListLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
 
   const [error, setError] = useState("");
@@ -154,84 +151,25 @@ const ComplaintManagementDashboard = () => {
     setSelectedComplaintDetail(null);
   };
 
+  // Panel owns success/error messaging — these just run the API + refresh, throwing on failure
   const onVerify = async () => {
-    if (!selectedComplaintId) return;
-    setActionLoading(true);
-    setError("");
-    try {
-      await verifyAdminComplaint(selectedComplaintId);
-      toast.custom(
-        <SuccessToast
-          title="Complaint verified"
-          message="Verification updated successfully"
-        />,
-      );
-      await refreshAll();
-    } catch {
-      setError("Failed to verify complaint.");
-    } finally {
-      setActionLoading(false);
-    }
+    await verifyAdminComplaint(selectedComplaintId);
+    await refreshAll();
   };
 
   const onUnverify = async () => {
-    if (!selectedComplaintId) return;
-    setActionLoading(true);
-    setError("");
-    try {
-      await unverifyAdminComplaint(selectedComplaintId);
-      toast.custom(
-        <SuccessToast
-          title="Complaint unverified"
-          message="Verification updated successfully"
-        />,
-      );
-      await refreshAll();
-    } catch {
-      setError("Failed to unverify complaint.");
-    } finally {
-      setActionLoading(false);
-    }
+    await unverifyAdminComplaint(selectedComplaintId);
+    await refreshAll();
   };
 
   const onUpdateCategory = async (categoryId) => {
-    if (!selectedComplaintId || !categoryId) return;
-    setActionLoading(true);
-    setError("");
-    try {
-      await updateAdminComplaintCategory(selectedComplaintId, categoryId);
-      toast.custom(
-        <SuccessToast
-          title="Category updated"
-          message="Complaint category updated successfully"
-        />,
-      );
-      await refreshAll();
-    } catch {
-      setError("Failed to update complaint category.");
-    } finally {
-      setActionLoading(false);
-    }
+    await updateAdminComplaintCategory(selectedComplaintId, categoryId);
+    await refreshAll();
   };
 
   const onUpdateStatus = async (statusName) => {
-    if (!selectedComplaintId || !statusName) return;
-    setActionLoading(true);
-    setError("");
-    try {
-      await updateAdminComplaintStatus(selectedComplaintId, statusName);
-      toast.custom(
-        <SuccessToast
-          title="Status updated"
-          message="Complaint status updated successfully"
-        />,
-      );
-      await refreshAll();
-    } catch {
-      setError("Failed to update complaint status.");
-    } finally {
-      setActionLoading(false);
-    }
+    await updateAdminComplaintStatus(selectedComplaintId, statusName);
+    await refreshAll();
   };
 
   const onDownloadPdf = async () => {
@@ -241,12 +179,6 @@ const ComplaintManagementDashboard = () => {
       const blob = await downloadAdminComplaintsPdf(apiFilters);
       const stamp = new Date().toISOString().replace(/[:.]/g, "-");
       downloadBlobFile(blob, `complaints-report-${stamp}.pdf`);
-      toast.custom(
-        <SuccessToast
-          title="Report downloaded"
-          message="PDF downloaded successfully"
-        />,
-      );
     } catch {
       setError("Failed to download PDF report.");
     } finally {
@@ -323,7 +255,6 @@ const ComplaintManagementDashboard = () => {
         complaint={selectedComplaintDetail}
         categories={categories}
         loading={detailLoading}
-        actionLoading={actionLoading}
         onClose={handleCloseModal}
         onVerify={onVerify}
         onUnverify={onUnverify}
