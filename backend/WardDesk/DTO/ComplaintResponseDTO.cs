@@ -23,6 +23,7 @@
         public DateTime? UpdatedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
         public List<string> PhotoUrls { get; set; } = new();
+        public List<string> WorkPhotoUrls { get; set; } = new();
         public string CitizenName { get; set; } = "";
         public Guid CitizenId { get; set; }
     }

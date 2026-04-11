@@ -27,5 +27,6 @@
         public DateTime? ResolvedAt { get; set; }
 
         public List<string> PhotoUrls { get; set; } = new();
+        public List<string> WorkPhotoUrls { get; set; } = new();
     }
 }

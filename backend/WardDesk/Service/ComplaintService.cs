@@ -88,7 +88,8 @@ namespace WardDesk.Service
                 c,
                 c.Category?.CategoryName ?? "",
                 c.Status?.StatusName ?? "",
-                c.Photos?.Select(p => p.PhotoUrl).ToList()
+                c.Photos?.Where(p => p.PhotoType == "complaint").Select(p => p.PhotoUrl).ToList(),
+                c.Photos?.Where(p => p.PhotoType != "complaint").Select(p => p.PhotoUrl).ToList()
             )).ToList();
         }
 
@@ -108,7 +109,8 @@ namespace WardDesk.Service
                 c,
                 c.Category?.CategoryName ?? "",
                 c.Status?.StatusName ?? "",
-                c.Photos?.Select(p => p.PhotoUrl).ToList()
+                c.Photos?.Where(p => p.PhotoType == "complaint").Select(p => p.PhotoUrl).ToList(),
+                c.Photos?.Where(p => p.PhotoType != "complaint").Select(p => p.PhotoUrl).ToList()
             );
         }
 
@@ -126,7 +128,8 @@ namespace WardDesk.Service
                 c,
                 c.Category?.CategoryName ?? "",
                 c.Status?.StatusName ?? "",
-                c.Photos?.Select(p => p.PhotoUrl).ToList()
+                c.Photos?.Where(p => p.PhotoType == "complaint").Select(p => p.PhotoUrl).ToList(),
+                c.Photos?.Where(p => p.PhotoType != "complaint").Select(p => p.PhotoUrl).ToList()
             )).ToList();
         }
 
@@ -153,7 +156,7 @@ namespace WardDesk.Service
 
 
         private static ComplaintResponseDTO MapToDTO(
-           Complaint c, string categoryName, string statusName, List<string>? photoUrls)
+           Complaint c, string categoryName, string statusName, List<string>? photoUrls, List<string>? workPhotoUrls = null)
         {
             return new ComplaintResponseDTO
             {
@@ -178,6 +181,7 @@ namespace WardDesk.Service
                 UpdatedAt = c.UpdatedAt,
                 ResolvedAt = c.ResolvedAt,
                 PhotoUrls = photoUrls ?? new List<string>(),
+                WorkPhotoUrls = workPhotoUrls ?? new List<string>(),
                 CitizenName = c.Citizen?.FullName ?? "",
                 CitizenId = c.CitizenId,
             };

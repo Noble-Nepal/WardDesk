@@ -67,7 +67,8 @@ namespace WardDesk.Service
                     CreatedAt = c.CreatedAt,
                     UpdatedAt = c.UpdatedAt,
                     ResolvedAt = c.ResolvedAt,
-                    PhotoUrls = c.Photos != null ? c.Photos.Select(p => p.PhotoUrl).ToList() : new List<string>()
+                    PhotoUrls = c.Photos != null ? c.Photos.Where(p => p.PhotoType == "complaint").Select(p => p.PhotoUrl).ToList() : new List<string>(),
+                    WorkPhotoUrls = c.Photos != null ? c.Photos.Where(p => p.PhotoType != "complaint").Select(p => p.PhotoUrl).ToList() : new List<string>()
                 })
                 .ToListAsync();
         }
@@ -106,7 +107,8 @@ namespace WardDesk.Service
                     NetVotes = c.NetVotes,
                     VerifiedBy = c.VerifiedBy,
                     VerifiedAt = c.VerifiedAt,
-                    PhotoUrls = c.Photos != null ? c.Photos.Select(p => p.PhotoUrl).ToList() : new List<string>()
+                    PhotoUrls = c.Photos != null ? c.Photos.Where(p => p.PhotoType == "complaint").Select(p => p.PhotoUrl).ToList() : new List<string>(),
+                    WorkPhotoUrls = c.Photos != null ? c.Photos.Where(p => p.PhotoType != "complaint").Select(p => p.PhotoUrl).ToList() : new List<string>()
                 })
                 .FirstOrDefaultAsync();
         }

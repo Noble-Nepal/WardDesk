@@ -14,5 +14,10 @@ namespace WardDesk.DTO
         public DateTime SubmittedDate { get; set; }
         public string CitizenName { get; set; } = string.Empty;
         public string? ComplaintPhoto { get; set; }
+        public string? Description { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
+        public string? Remarks { get; set; }
+        public List<string> WorkPhotos { get; set; } = new();
     }
 }

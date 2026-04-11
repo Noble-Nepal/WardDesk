@@ -23,30 +23,40 @@ namespace WardDesk.Service
 
         public async Task<List<TechnicianAssignedComplaintDTO>> GetMyAssignedComplaintsAsync(Guid technicianId)
         {
-            return await _context.Assignments
+            var assignments = await _context.Assignments
                 .Include(a => a.Complaint)!.ThenInclude(c => c!.Category)
                 .Include(a => a.Complaint)!.ThenInclude(c => c!.Status)
                 .Include(a => a.Complaint)!.ThenInclude(c => c!.Citizen)
+                .Include(a => a.Complaint)!.ThenInclude(c => c!.Photos)
                 .Where(a => a.TechnicianId == technicianId)
                 .OrderByDescending(a => a.AssignedAt)
-                .Select(a => new TechnicianAssignedComplaintDTO
-                {
-                    ComplaintId = a.ComplaintId,
-                    Title = a.Complaint!.Title,
-                    Category = a.Complaint.Category != null ? a.Complaint.Category.CategoryName : null,
-                    Status = a.Complaint.Status != null ? a.Complaint.Status.StatusName : null,
-                    Priority = a.Complaint.PriorityLevel,
-                    Address = a.Complaint.LocationAddress,
-                    WardNumber = a.Complaint.WardNumber,
-                    SubmittedDate = a.Complaint.CreatedAt,
-                    CitizenName = a.Complaint.Citizen != null ? a.Complaint.Citizen.FullName : "",
-                    ComplaintPhoto = _context.ComplaintPhotos
-                        .Where(p => p.ComplaintId == a.ComplaintId && p.PhotoType == "complaint")
-                        .OrderByDescending(p => p.UploadedAt)
-                        .Select(p => p.PhotoUrl)
-                        .FirstOrDefault()
-                })
                 .ToListAsync();
+
+            return assignments.Select(a => new TechnicianAssignedComplaintDTO
+            {
+                ComplaintId = a.ComplaintId,
+                Title = a.Complaint!.Title,
+                Category = a.Complaint.Category?.CategoryName,
+                Status = a.Complaint.Status?.StatusName,
+                Priority = a.Complaint.PriorityLevel,
+                Address = a.Complaint.LocationAddress,
+                WardNumber = a.Complaint.WardNumber,
+                SubmittedDate = a.Complaint.CreatedAt,
+                CitizenName = a.Complaint.Citizen?.FullName ?? "",
+                Description = a.Complaint.Description,
+                Latitude = a.Complaint.Latitude,
+                Longitude = a.Complaint.Longitude,
+                Remarks = a.Remarks,
+                ComplaintPhoto = a.Complaint.Photos?
+                    .Where(p => p.PhotoType == "complaint")
+                    .OrderByDescending(p => p.UploadedAt)
+                    .Select(p => p.PhotoUrl)
+                    .FirstOrDefault(),
+                WorkPhotos = a.Complaint.Photos?
+                    .Where(p => p.PhotoType != "complaint")
+                    .Select(p => p.PhotoUrl)
+                    .ToList() ?? new List<string>()
+            }).ToList();
         }
 
         public async Task UpdateWorkStatusAsync(Guid technicianId, Guid complaintId, UpdateWorkStatusDTO dto)
