@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WardDesk.Database;
@@ -11,9 +12,11 @@ using WardDesk.Database;
 namespace WardDesk.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411074833_AddWardManagement")]
+    partial class AddWardManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -418,19 +421,14 @@ namespace WardDesk.Migrations
                     b.ToTable("users");
                 });
 
-            modelBuilder.Entity("WardDesk.Models.WardArea", b =>
+            modelBuilder.Entity("WardDesk.Models.Ward", b =>
                 {
-                    b.Property<int>("WardAreaId")
+                    b.Property<int>("WardId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("ward_area_id");
+                        .HasColumnName("ward_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WardAreaId"));
-
-                    b.Property<string>("AddressName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("address_name");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WardId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -440,17 +438,42 @@ namespace WardDesk.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<int>("WardFrom")
+                    b.Property<int>("WardNumber")
                         .HasColumnType("integer")
-                        .HasColumnName("ward_from");
+                        .HasColumnName("ward_number");
 
-                    b.Property<int>("WardTo")
+                    b.HasKey("WardId");
+
+                    b.ToTable("wards");
+                });
+
+            modelBuilder.Entity("WardDesk.Models.WardAddress", b =>
+                {
+                    b.Property<int>("WardAddressId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("ward_to");
+                        .HasColumnName("ward_address_id");
 
-                    b.HasKey("WardAreaId");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WardAddressId"));
 
-                    b.ToTable("ward_areas");
+                    b.Property<string>("AddressName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int>("WardId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ward_id");
+
+                    b.HasKey("WardAddressId");
+
+                    b.HasIndex("WardId");
+
+                    b.ToTable("ward_addresses");
                 });
 
             modelBuilder.Entity("WardDesk.Models.Assignment", b =>
@@ -563,9 +586,25 @@ namespace WardDesk.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("WardDesk.Models.WardAddress", b =>
+                {
+                    b.HasOne("WardDesk.Models.Ward", "Ward")
+                        .WithMany("Addresses")
+                        .HasForeignKey("WardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ward");
+                });
+
             modelBuilder.Entity("WardDesk.Models.Complaint", b =>
                 {
                     b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("WardDesk.Models.Ward", b =>
+                {
+                    b.Navigation("Addresses");
                 });
 #pragma warning restore 612, 618
         }

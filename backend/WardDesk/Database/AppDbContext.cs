@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WardDesk.Models;
 
+
 namespace WardDesk.Database
 {
     public class AppDbContext : DbContext
@@ -18,6 +19,7 @@ namespace WardDesk.Database
         public DbSet<ComplaintPhoto> ComplaintPhotos { get; set; }
         public DbSet<ComplaintVote> ComplaintVotes { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<WardArea> WardAreas { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
