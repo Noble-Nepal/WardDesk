@@ -5,7 +5,7 @@ using WardDesk.Services;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "admin")]
+[Authorize(Roles = "admin,superadmin")]
 public class AdminController : Controller
 {
     private readonly AdminService _adminService;

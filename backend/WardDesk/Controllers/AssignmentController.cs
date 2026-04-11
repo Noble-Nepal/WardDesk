@@ -11,7 +11,7 @@ namespace WardDesk.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,superadmin")]
     public class AssignmentController : ControllerBase
     {
         private readonly AssignmentService _assignmentService;

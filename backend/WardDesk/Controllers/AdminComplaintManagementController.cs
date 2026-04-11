@@ -11,7 +11,7 @@ namespace WardDesk.Controllers
 {
     [ApiController]
     [Route("api/admin/complaints-management")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,superadmin")]
     public class AdminComplaintManagementController : ControllerBase
     {
         private readonly AdminComplaintManagementService _service;
