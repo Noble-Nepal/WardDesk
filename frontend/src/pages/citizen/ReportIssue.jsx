@@ -17,7 +17,6 @@ import {
   getImpactStats,
 } from "../../api/complaintApi";
 import {
-  WARD_OPTIONS,
   PRIORITY_OPTIONS,
   MAX_PHOTOS,
   MAX_TOTAL_SIZE,
@@ -29,6 +28,7 @@ import {
   LABELS,
   PLACEHOLDERS,
 } from "../../constants/reportIssueConstants";
+import { getWardAreas } from "../../api/wardApi";
 
 export default function ReportIssue() {
   const navigate = useNavigate();
@@ -55,6 +55,12 @@ export default function ReportIssue() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [submittedComplaint, setSubmittedComplaint] = useState(null);
+
+  // ─── Wards ───
+  const [wards, setWards] = useState([]);
+  useEffect(() => {
+    getWardAreas().then((res) => setWards(Array.isArray(res.data) ? res.data : [])).catch(() => setWards([]));
+  }, []);
 
   // ─── Impact Stats ───
   const [impactStats, setImpactStats] = useState({
@@ -243,25 +249,51 @@ export default function ReportIssue() {
               {LABELS.locationInfo}
             </h2>
             <div className="space-y-4">
+              {/* Address — pick locality first */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1">
+                  Address *
+                </label>
+                <select
+                  required
+                  value={address}
+                  onChange={(e) => { setAddress(e.target.value); setWard(""); }}
+                  className="w-full px-4 py-3 border rounded-lg text-sm"
+                >
+                  <option value="" disabled>Select address</option>
+                  {wards.map((a) => (
+                    <option key={a.wardAreaId} value={a.addressName}>
+                      {a.addressName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Ward Number — range from selected address */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
                   Ward Number *
                 </label>
-                <select
-                  required
-                  value={ward}
-                  onChange={(e) => setWard(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-lg text-sm"
-                >
-                  <option value="" disabled>
-                    Select ward
-                  </option>
-                  {WARD_OPTIONS.map((w) => (
-                    <option key={w} value={w}>
-                      Ward {w}
-                    </option>
-                  ))}
-                </select>
+                {(() => {
+                  const selected = wards.find((a) => a.addressName === address);
+                  const wardOptions = selected
+                    ? Array.from({ length: selected.wardTo - selected.wardFrom + 1 }, (_, i) => selected.wardFrom + i)
+                    : [];
+                  return (
+                    <select
+                      required
+                      value={ward}
+                      disabled={!address || wardOptions.length === 0}
+                      onChange={(e) => setWard(e.target.value)}
+                      className="w-full px-4 py-3 border rounded-lg text-sm disabled:bg-gray-50 disabled:text-gray-400"
+                    >
+                      <option value="" disabled>{address ? "Select ward number" : "Select address first"}</option>
+                      {wardOptions.map((w) => (
+                        <option key={w} value={w}>Ward {w}</option>
+                      ))}
+                    </select>
+                  );
+                })()}
               </div>
 
               <div>
@@ -276,7 +308,7 @@ export default function ReportIssue() {
                       onChange={setLatLng}
                     />
                   ) : (
-                    <div className="h-[300px]" />
+                    <div className="h-75" />
                   )}
                   <div className="text-gray-500 text-sm text-center mt-2">
                     {latlng
@@ -284,19 +316,6 @@ export default function ReportIssue() {
                       : "Click on the map to select location"}
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  placeholder={PLACEHOLDERS.address}
-                  className="w-full px-4 py-3 border rounded-lg text-sm"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
               </div>
             </div>
           </div>

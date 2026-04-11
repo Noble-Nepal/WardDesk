@@ -56,6 +56,11 @@ export const superadminNavItems = [
     path: "/superadmin/admin-management",
   },
   {
+    label: "Manage Address",
+    icon: "MapPin",
+    path: "/superadmin/address-management",
+  },
+  {
     label: "Manage Technicians",
     icon: "Wrench",
     path: "/superadmin/technician-management",

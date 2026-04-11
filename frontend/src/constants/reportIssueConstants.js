@@ -1,6 +1,3 @@
-// Ward options
-export const WARD_OPTIONS = Array.from({ length: 26 }, (_, i) => i + 1);
-
 // Priority options, each with display and styling atoms
 export const PRIORITY_OPTIONS = [
   {

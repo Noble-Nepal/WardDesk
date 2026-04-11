@@ -40,7 +40,17 @@ export default function ProfileEditForm({
   onCancel,
   onSave,
   saving,
+  wards = [],
 }) {
+  const selectedArea = wards.find((a) => a.addressName === form.address);
+  const wardOptions = selectedArea
+    ? Array.from({ length: selectedArea.wardTo - selectedArea.wardFrom + 1 }, (_, i) => selectedArea.wardFrom + i)
+    : [];
+
+  const handleAddressChange = (e) => {
+    onChange(e);
+    onChange({ target: { name: "wardNumber", value: "" } });
+  };
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
@@ -96,26 +106,48 @@ export default function ProfileEditForm({
             error={errors.phoneNumber}
             readOnly={!isEditMode}
           />
-          <Field
-            label="Ward Number"
-            name="wardNumber"
-            type="number"
-            value={form.wardNumber}
-            onChange={onChange}
-            error={errors.wardNumber}
-            readOnly={!isEditMode}
-          />
-        </div>
+          {/* Address — dropdown in edit mode */}
+          <div>
+            <label className="text-sm text-gray-700 mb-1.5 block">Full Address</label>
+            {isEditMode ? (
+              <select
+                name="address"
+                value={form.address ?? ""}
+                onChange={handleAddressChange}
+                className={`${inputBase} ${enabledInput} ${errors.address ? "border-red-500" : ""}`}
+              >
+                <option value="">Select address</option>
+                {wards.map((a) => (
+                  <option key={a.wardAreaId} value={a.addressName}>{a.addressName}</option>
+                ))}
+              </select>
+            ) : (
+              <input name="address" value={form.address ?? ""} readOnly className={`${inputBase} ${disabledInput}`} />
+            )}
+            {errors.address ? <p className="text-xs text-red-600 mt-1">{errors.address}</p> : null}
+          </div>
 
-        <div className="mt-5">
-          <Field
-            label="Full Address"
-            name="address"
-            value={form.address}
-            onChange={onChange}
-            error={errors.address}
-            readOnly={!isEditMode}
-          />
+          {/* Ward Number — range from selected address in edit mode */}
+          <div>
+            <label className="text-sm text-gray-700 mb-1.5 block">Ward Number</label>
+            {isEditMode ? (
+              <select
+                name="wardNumber"
+                value={form.wardNumber ?? ""}
+                disabled={wardOptions.length === 0}
+                onChange={onChange}
+                className={`${inputBase} ${enabledInput} disabled:bg-gray-50 disabled:text-gray-400 ${errors.wardNumber ? "border-red-500" : ""}`}
+              >
+                <option value="">{form.address ? "Select ward number" : "Select address first"}</option>
+                {wardOptions.map((w) => (
+                  <option key={w} value={w}>Ward {w}</option>
+                ))}
+              </select>
+            ) : (
+              <input name="wardNumber" value={form.wardNumber ?? ""} readOnly className={`${inputBase} ${disabledInput}`} />
+            )}
+            {errors.wardNumber ? <p className="text-xs text-red-600 mt-1">{errors.wardNumber}</p> : null}
+          </div>
         </div>
 
         {isEditMode ? (

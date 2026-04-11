@@ -43,6 +43,11 @@ export const API_ENDPOINTS = {
   // Superadmin
   ASSIGN_ROLE: (userId) => `/superadmin/users/${userId}/assign-role`,
 
+  // Ward / Address management
+  GET_WARD_AREAS: "/ward",
+  ADD_WARD_AREA: "/ward",
+  DELETE_WARD_AREA: (wardAreaId) => `/ward/${wardAreaId}`,
+
   // Admin complaint management
   ADMIN_COMPLAINTS_MANAGEMENT: "/admin/complaints-management",
   ADMIN_COMPLAINTS_REPORT_PDF: "/admin/complaints-management/report/pdf",

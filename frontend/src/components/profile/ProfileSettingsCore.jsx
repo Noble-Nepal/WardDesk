@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { getWardAreas } from "../../api/wardApi";
 import { Lock, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
@@ -43,6 +44,7 @@ export default function ProfileSettingsCore() {
   const { setUserProfile } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wards, setWards] = useState([]);
 
   const [personalForm, setPersonalForm] = useState(emptyPersonalForm);
   const [passwordForm, setPasswordForm] = useState(emptyPasswordForm);
@@ -88,6 +90,7 @@ export default function ProfileSettingsCore() {
 
   useEffect(() => {
     loadProfile();
+    getWardAreas().then((res) => setWards(Array.isArray(res.data) ? res.data : [])).catch(() => setWards([]));
   }, []);
 
   const strength = useMemo(
@@ -287,6 +290,7 @@ export default function ProfileSettingsCore() {
               onCancel={onCancelEdit}
               onSave={onSaveProfile}
               saving={savingProfile}
+              wards={wards}
             />
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">

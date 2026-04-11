@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { registerUser } from "../../api/authApi";
+import { getWardAreas } from "../../api/wardApi";
 import handleImageUpload from "../../utils/handleImageUpload.js";
 import SuccessToast from "../../components/ui/SuccessToast";
 import EyeToggle from "../../components/ui/EyeToggle";
@@ -52,8 +53,15 @@ const Registration = () => {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [wards, setWards] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getWardAreas().then((res) => {
+      setWards(Array.isArray(res.data) ? res.data : []);
+    }).catch(() => setWards([]));
+  }, []);
 
   const isTechnician = roleType === "technician";
 
@@ -432,24 +440,26 @@ const Registration = () => {
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
                   Address
                 </label>
-                <input
-                  type="text"
-                  placeholder="Enter your address"
+                <select
                   value={address}
                   onChange={(e) => {
                     setAddress(e.target.value);
+                    setWardNumber("");
                     clearFieldError("address");
                   }}
                   className={`
-                    w-full px-4 py-3 border rounded-lg text-sm text-gray-700 placeholder-gray-400
+                    w-full px-4 py-3 border rounded-lg text-sm text-gray-700
                     transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent
-                    ${
-                      errors.address
-                        ? "border-red-400 focus:ring-red-400"
-                        : "border-gray-300 focus:ring-blue-500"
-                    }
+                    ${errors.address ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"}
                   `}
-                />
+                >
+                  <option value="">Select your address</option>
+                  {wards.map((a) => (
+                    <option key={a.wardAreaId} value={a.addressName}>
+                      {a.addressName}
+                    </option>
+                  ))}
+                </select>
                 {errors.address && (
                   <p className="text-red-500 text-xs mt-1">{errors.address}</p>
                 )}
@@ -460,28 +470,35 @@ const Registration = () => {
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
                   Ward Number
                 </label>
-                <input
-                  type="number"
-                  placeholder="Enter your ward number"
-                  value={wardNumber}
-                  onChange={(e) => {
-                    setWardNumber(e.target.value);
-                    clearFieldError("wardNumber");
-                  }}
-                  className={`
-                    w-full px-4 py-3 border rounded-lg text-sm text-gray-700 placeholder-gray-400
-                    transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent
-                    ${
-                      errors.wardNumber
-                        ? "border-red-400 focus:ring-red-400"
-                        : "border-gray-300 focus:ring-blue-500"
-                    }
-                  `}
-                />
+                {(() => {
+                  const selected = wards.find((a) => a.addressName === address);
+                  const wardOptions = selected
+                    ? Array.from({ length: selected.wardTo - selected.wardFrom + 1 }, (_, i) => selected.wardFrom + i)
+                    : [];
+                  return (
+                    <select
+                      value={wardNumber}
+                      disabled={!address || wardOptions.length === 0}
+                      onChange={(e) => {
+                        setWardNumber(e.target.value);
+                        clearFieldError("wardNumber");
+                      }}
+                      className={`
+                        w-full px-4 py-3 border rounded-lg text-sm text-gray-700
+                        transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent
+                        disabled:bg-gray-50 disabled:text-gray-400
+                        ${errors.wardNumber ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"}
+                      `}
+                    >
+                      <option value="">{address ? "Select ward number" : "Select address first"}</option>
+                      {wardOptions.map((w) => (
+                        <option key={w} value={w}>Ward {w}</option>
+                      ))}
+                    </select>
+                  );
+                })()}
                 {errors.wardNumber && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.wardNumber}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.wardNumber}</p>
                 )}
               </div>
 

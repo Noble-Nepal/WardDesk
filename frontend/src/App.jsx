@@ -28,6 +28,7 @@ import UserManagementDashboard from "./pages/admin/UserManagementDashboard";
 import TechnicianProfileSettings from "./pages/technician/ProfileSettings";
 //Superadmin Pages
 import AdminManagementDashboard from "./pages/superadmin/AdminManagementDashboard";
+import AddressManagementDashboard from "./pages/superadmin/AddressManagementDashboard";
 import SuperadminProfileSettings from "./pages/superadmin/ProfileSettings";
 
 const App = () => {
@@ -68,6 +69,7 @@ const App = () => {
         <Route index element={<Navigate to="/superadmin/admin-management" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="admin-management" element={<AdminManagementDashboard />} />
+        <Route path="address-management" element={<AddressManagementDashboard />} />
         <Route path="technician-management" element={<TechnicianManagementDashboard />} />
         <Route path="user-management" element={<UserManagementDashboard />} />
         <Route path="complaint-management" element={<ComplaintManagementDashboard />} />
