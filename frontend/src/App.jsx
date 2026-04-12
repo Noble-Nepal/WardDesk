@@ -88,6 +88,7 @@ const App = () => {
           element={<TechnicianProfileSettings />}
         />
       </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
