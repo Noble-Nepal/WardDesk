@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {
-  platformLinks,
   supportLinks,
   legalLinks,
   socialLinks,
@@ -12,7 +11,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white py-16 px-6">
       <div className="max-w-7xl mx-auto">
         {/* -------- MAIN GRID -------- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Column 1: Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2.5 mb-4">
@@ -34,41 +33,24 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Column 2: Platform */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Platform</h3>
-            <ul className="space-y-3">
-              {platformLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Support */}
+          {/* Column 2: Support */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-3">
               {supportLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    to={link.to}
+                  <a
+                    href={link.href}
                     className="text-gray-400 hover:text-white transition-colors"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 4: Contact & Legal */}
+          {/* Column 3: Contact & Legal */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-3 text-sm text-gray-400">

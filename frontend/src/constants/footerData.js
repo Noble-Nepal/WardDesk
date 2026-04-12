@@ -1,20 +1,17 @@
-export const platformLinks = [
-  { label: "Features", to: "#" },
-  { label: "How It Works", to: "#" },
-  { label: "User Roles", to: "#" },
-  { label: "Pricing", to: "#" },
-];
-
 export const supportLinks = [
-  { label: "Help Center", to: "#" },
-  { label: "Documentation", to: "#" },
-  { label: "Contact Us", to: "#" },
-  { label: "Report Bug", to: "#" },
+  {
+    label: "Contact Us",
+    href: "mailto:warddesk1notifications@gmail.com?subject=Reason%20for%20Contact%3A%20",
+  },
+  {
+    label: "Report Bug",
+    href: "mailto:warddesk1notifications@gmail.com?subject=Bug%20Report%20Title%3A%20",
+  },
 ];
 
 export const legalLinks = [
-  { label: "Privacy Policy", to: "#" },
-  { label: "Terms of Service", to: "#" },
+  { label: "Privacy Policy", to: "/privacy" },
+  { label: "Terms of Service", to: "/terms" },
 ];
 
 export const socialLinks = [
@@ -24,7 +21,7 @@ export const socialLinks = [
 ];
 
 export const contactInfo = [
-  "support@warddesk.com",
-  "+977-01-XXXXXXX",
+  "warddesk1notifications@gmail.com",
+  "+977 9741838581",
   "Kathmandu, Nepal",
 ];

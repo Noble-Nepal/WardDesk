@@ -11,6 +11,8 @@ import Registration from "./pages/auth/Registration";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Home from "./pages/Home";
 import TrackComplaint from "./pages/public/TrackComplaint";
+import TermsAndConditions from "./pages/public/TermsAndConditions";
+import PrivacyPolicy from "./pages/public/PrivacyPolicy";
 
 //Citizen Pages
 import ComplaintDashboard from "./pages/citizen/ComplaintDashboard";
@@ -40,6 +42,8 @@ const App = () => {
       <Route path="/track/:trackingId" element={<TrackComplaint />} />
       <Route path="/register" element={<Registration />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/terms" element={<TermsAndConditions />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
 
       {/* -------- CITIZEN ROUTES -------- */}
       <Route path="/citizen" element={<CitizenLayout />}>

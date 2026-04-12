@@ -666,13 +666,13 @@ const Registration = () => {
                   />
                   <span>
                     I agree to the{" "}
-                    <a href="#" className="text-blue-600 hover:underline">
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       Terms and Conditions
-                    </a>{" "}
+                    </Link>{" "}
                     and{" "}
-                    <a href="#" className="text-blue-600 hover:underline">
+                    <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       Privacy Policy
-                    </a>
+                    </Link>
                   </span>
                 </label>
                 {errors.terms && (
