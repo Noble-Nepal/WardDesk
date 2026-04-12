@@ -68,6 +68,7 @@ namespace WardDesk
             builder.Services.AddScoped<AdminComplaintManagementService>();
             builder.Services.AddScoped<WardDesk.Service.SuperadminService>();
             builder.Services.AddScoped<WardDesk.Service.WardService>();
+            builder.Services.AddScoped<WardDesk.Service.ActionPlanService>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReact", policy =>
