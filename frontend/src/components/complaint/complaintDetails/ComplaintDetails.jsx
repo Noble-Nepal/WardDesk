@@ -14,6 +14,7 @@ import {
 import { Clock, AlertCircle, CheckCircle2, MapPin } from "lucide-react";
 import QRCodeSection from "./QRCodeSection";
 import NepalMapPicker from "../../map/mapPicker";
+import SmartActionPlan from "./SmartActionPlan";
 
 const getCategoryBadgeClass = (category = "") => {
   const c = String(category).toLowerCase();
@@ -63,6 +64,7 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
   const isSuccessModal = variant === "success";
   const isTrackedVariant = variant === "tracked";
   const safeIssue = issueData || {};
+
 
   const trackingId = safeIssue.id || safeIssue.trackingId || "N/A";
   const status = safeIssue.status || safeIssue.statusName || "submitted";
@@ -281,6 +283,16 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
               </div>
             );
           })()}
+
+          {/* ── Smart Action Plan ── */}
+          {!isSuccessModal && safeIssue.category && (
+            <div className="mt-4">
+              <SmartActionPlan
+                category={safeIssue.category}
+                description={safeIssue.description}
+              />
+            </div>
+          )}
         </div>
 
         {/* ── Sticky Footer ── */}

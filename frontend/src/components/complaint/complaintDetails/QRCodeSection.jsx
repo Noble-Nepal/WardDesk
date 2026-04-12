@@ -160,7 +160,7 @@ const QRCodeSection = ({
           <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleDownloadQR}
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg shadow-sm transition-colors"
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-[#2B4AA0] hover:bg-[#1d3570] text-white text-sm rounded-lg shadow-sm transition-colors"
             >
               <MdDownload className="w-4 h-4 mr-2" />
               {successDownloadLabel}
@@ -169,7 +169,7 @@ const QRCodeSection = ({
         ) : (
           <button
             onClick={handleDownloadQR}
-            className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg shadow-sm transition-colors"
+            className="w-full inline-flex items-center justify-center px-4 py-2 bg-[#2B4AA0] hover:bg-[#1d3570] text-white text-sm rounded-lg shadow-sm transition-colors"
           >
             <MdDownload className="w-4 h-4 mr-2" />
             Download QR Code

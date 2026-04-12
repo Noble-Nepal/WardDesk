@@ -28,3 +28,7 @@ export const voteOnComplaint = (complaintId, voteType) =>
 // Get current user's vote on a complaint
 export const getMyVote = (complaintId) =>
   axiosInstance.get(API_ENDPOINTS.MY_VOTE(complaintId));
+
+// Generate AI action plan for a complaint
+export const getActionPlan = (category, description) =>
+  axiosInstance.post(API_ENDPOINTS.ACTION_PLAN, { category, description });

@@ -53,6 +53,9 @@ export const API_ENDPOINTS = {
   ADMIN_COMPLAINTS_REPORT_PDF: "/admin/complaints-management/report/pdf",
   GET_COMPLAINT_CATEGORIES: "/complaint/categories",
 
+  // Action Plan
+  ACTION_PLAN: "/action-plan",
+
   // Profile
   PROFILE: {
     ME: "/profile/me",
