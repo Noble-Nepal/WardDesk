@@ -255,51 +255,51 @@ export default function TechnicianComplaintDetails({
                   </div>
                 </div>
               </div>
+
+              {/* Work Remarks */}
+              {complaint.remarks && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Work Remarks</p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-gray-700">
+                    {complaint.remarks}
+                  </div>
+                </div>
+              )}
+
+              {/* Photos — Complaint / Work side by side */}
+              {(complaint.complaintPhoto || complaint.workPhotos?.length > 0) && (
+                <div className={`grid gap-3 ${complaint.complaintPhoto && complaint.workPhotos?.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+                  {complaint.complaintPhoto && (
+                    <div>
+                      <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                        <MdImage className="w-3.5 h-3.5" />
+                        Complaint Photo
+                      </p>
+                      <div className="rounded-xl overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+                        <img src={complaint.complaintPhoto} alt={complaint.title} className="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                  )}
+
+                  {complaint.workPhotos?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                        <Camera className="w-3.5 h-3.5" />
+                        Work Photos ({complaint.workPhotos.length})
+                      </p>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {complaint.workPhotos.map((url, idx) => (
+                          <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                            <img src={url} alt={`Work photo ${idx + 1}`} className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Work Remarks */}
-          {complaint.remarks && (
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">Work Remarks</p>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-gray-700">
-                {complaint.remarks}
-              </div>
-            </div>
-          )}
-
-          {/* Photos */}
-          {(complaint.complaintPhoto || complaint.workPhotos?.length > 0) && (
-            <div className="mt-4 space-y-4">
-              {complaint.complaintPhoto && (
-                <div>
-                  <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
-                    <MdImage className="w-3.5 h-3.5" />
-                    Complaint Photo
-                  </p>
-                  <div className="rounded-xl overflow-hidden border border-gray-200 aspect-video bg-gray-50">
-                    <img src={complaint.complaintPhoto} alt={complaint.title} className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              )}
-
-              {complaint.workPhotos?.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
-                    <Camera className="w-3.5 h-3.5" />
-                    Work Photos ({complaint.workPhotos.length})
-                  </p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {complaint.workPhotos.map((url, idx) => (
-                      <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
-                        <img src={url} alt={`Work photo ${idx + 1}`} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ── Sticky Footer ── */}

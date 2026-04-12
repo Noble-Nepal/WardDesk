@@ -239,60 +239,62 @@ const ComplaintDetails = ({ isOpen, onClose, issueData, variant }) => {
                   </div>
                 </div>
               )}
+
+              {/* Smart Action Plan */}
+              {!isSuccessModal && safeIssue.category && (
+                <SmartActionPlan
+                  category={safeIssue.category}
+                  description={safeIssue.description}
+                />
+              )}
+
+              {/* Photos — Before / After side by side */}
+              {showPhotos && !isSuccessModal && (() => {
+                const beforePhotos = safeIssue.beforePhotos || photos;
+                const afterPhotos = safeIssue.afterPhotos || safeIssue.workPhotoUrls || [];
+                const hasAfter = afterPhotos.length > 0;
+
+                return (
+                  <div className={`grid gap-3 ${hasAfter ? "grid-cols-2" : "grid-cols-1"}`}>
+                    {/* Before */}
+                    <div>
+                      <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                        <MdImage className="w-3.5 h-3.5" />
+                        Before
+                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px]">Original</span>
+                      </p>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {beforePhotos.map((url, idx) => (
+                          <div key={`before-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                            <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* After */}
+                    {hasAfter && (
+                      <div>
+                        <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
+                          <MdImage className="w-3.5 h-3.5" />
+                          After
+                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px]">Resolved</span>
+                        </p>
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {afterPhotos.map((url, idx) => (
+                            <div key={`after-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                              <img src={url} alt={`After photo ${idx + 1}`} className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
-          {/* Photos — Before / After (permanent labels) */}
-          {showPhotos && !isSuccessModal && (() => {
-            const beforePhotos = safeIssue.beforePhotos || photos;
-            const afterPhotos = safeIssue.afterPhotos || safeIssue.workPhotoUrls || [];
-
-            return (
-              <div className="mt-4 space-y-4">
-                <div>
-                  <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
-                    <MdImage className="w-3.5 h-3.5" />
-                    Before
-                    <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px]">Original</span>
-                  </p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {beforePhotos.map((url, idx) => (
-                      <div key={`before-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
-                        <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {afterPhotos.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium mb-2 flex items-center gap-1.5 text-gray-500">
-                      <MdImage className="w-3.5 h-3.5" />
-                      After
-                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px]">Resolved</span>
-                    </p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {afterPhotos.map((url, idx) => (
-                        <div key={`after-${idx}`} className="rounded-lg overflow-hidden border border-gray-200 aspect-square">
-                          <img src={url} alt={`After photo ${idx + 1}`} className="w-full h-full object-cover" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* ── Smart Action Plan ── */}
-          {!isSuccessModal && safeIssue.category && (
-            <div className="mt-4">
-              <SmartActionPlan
-                category={safeIssue.category}
-                description={safeIssue.description}
-              />
-            </div>
-          )}
         </div>
 
         {/* ── Sticky Footer ── */}
